@@ -18,17 +18,17 @@ data1 <- data1 %>%
   select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
   as_data_frame() 
 
-#Cleaning up data for plotA
-dataA <- data1 %>% 
-  select(cond:religiosity) 
+# Re-order conditions to: religous, secular, noise, and control
+
+dataA$cond[dataA$cond==4] <- 0 # make religious prime the reference category
+dataA$cond[dataA$cond==1] <- 3
+dataA$cond[dataA$cond==3] <- 2
+dataA$cond[dataA$cond==2] <- 1
+
+
+# treatment variable
+dataA$cond <- factor(dataA$cond,levels= c(0,1,2,3),
+                labels = c("Religious", "Secular", "Noise","Control"))
 
 
 
-# Creating plot A.
-
-
-plotA <- ggplot(dataA, aes(religiosity, claimpercent)) +
-  geom_smooth(method="lm")
-
-plot(plotA)
-  
