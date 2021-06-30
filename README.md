@@ -13,13 +13,3 @@ REPRODUCIBILITY PLAN - https://hackmd.io/ywBnW8KjROuI_VPsdJ8ieA
 
 Group 4 members - Jessica Le, Angelina Lim, Sam Jones, Victor Bian
 
-
-testing pull requests
-
-yeet
-
-<<<<<<< HEAD
-zzzz
-=======
-zzz
->>>>>>> d6d3c137dd22f792e7ef26bf0283abcf72f7d560
