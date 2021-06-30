@@ -15,15 +15,19 @@ data1 <- data1 %>%
          CT_payments = completion.time..payments.only.,
          religiosity = relig,
          religion = Religion) %>% 
-  select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% 
+  select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
   as_data_frame() 
+
+#Cleaning up data for plotA
+dataA <- data1 %>% 
+  select(cond:religiosity) 
 
 
 
 # Creating plot A.
 
 
-plotA <- ggplot(data1, aes(religiosity, claimpercent, colour = cond)) +
+plotA <- ggplot(dataA, aes(religiosity, claimpercent)) +
   geom_smooth(method="lm")
 
 plot(plotA)
