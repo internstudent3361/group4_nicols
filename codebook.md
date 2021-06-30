@@ -10,5 +10,6 @@ sex: 0 = female, 1 = male, NA = missing data
 age: age
 religiosity: 1 - 5, least to most self-rating of religiosity
 affil: 0 nonaffiliated, 1 affiliated
+affil_cong: 1 if the participant is affiliated with their religion, and the music is congruent with this affiliation
 religion: religion
 ritual: self-rated ritual frequency
