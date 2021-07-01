@@ -6,7 +6,7 @@ data1 <- read.csv("data/Nichols_et_al_data.csv")
 
 #Cleaning up the data for use
 
-data1 <- data1 %>%                                                          
+dataA <- data1 %>%                                                          
   filter(include == 0) %>% 
   rename(cond = con,
          claimpercent = claim,
@@ -20,10 +20,10 @@ data1 <- data1 %>%
 
 # Re-order conditions to: religous, secular, noise, and control
 
-dataA$cond[dataA$cond==4] <- 0 # make religious prime the reference category
-dataA$cond[dataA$cond==1] <- 3
-dataA$cond[dataA$cond==3] <- 2
-dataA$cond[dataA$cond==2] <- 1
+dataA$cond[dataA$cond==4] <- 0 # Make religious prime the reference category
+dataA$cond[dataA$cond==1] <- 4 # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
+dataA$cond[dataA$cond==3] <- 1 # we're changing the number twice which screws up our dataframe
+dataA$cond[dataA$cond==4] <- 3
 
 
 # treatment variable
