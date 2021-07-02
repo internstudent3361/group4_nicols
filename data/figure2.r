@@ -37,12 +37,31 @@ dataA$cond[dataA$cond==4] <- 3
 dataA$cond <- factor(dataA$cond, levels= c(0,1,2,3),
                 labels = c("Religious", "Secular", "Noise","Control"))
 
+dataB <- dataA
+dataC <- dataA
+
+dataA <- dataA %>% 
+  filter(!is.na(religiosity))
+
+dataB <- dataB %>% 
+  filter(!is.na(ritual))
+
 # plotting the figure
 
 figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
   geom_smooth(method = "lm") + #method = "lm" creates a straight line of best fit
   theme_light() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  coord_cartesian(ylim = c(0, 50))
+
+
+figB <- ggplot(dataB, aes(ritual, claimpercent, color = cond)) +
+  geom_smooth(method = "lm") +
+  theme_light() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  coord_cartesian(ylim = c(0, 50))
+
 
 
 plot(figA)
+plot(figB)
