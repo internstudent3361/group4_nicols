@@ -19,7 +19,8 @@ dataA <- data1 %>%
   
   mutate(religiosity = abs(religiosity - 5),
          ritual = abs(ritual - 7),              # reverse coding
-         claimpercent = claimpercent * 100) %>% #turning this into a percentage value
+         claimpercent = claimpercent * 100,     #turning this into a percentage value
+         affil = as.factor(affil_cong)) %>% 
   
   select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
   
@@ -37,8 +38,12 @@ dataA$cond[dataA$cond==4] <- 3
 dataA$cond <- factor(dataA$cond, levels= c(0,1,2,3),
                 labels = c("Religious", "Secular", "Noise","Control"))
 
+# creating variables so we can filter out specific values for each plot
 dataB <- dataA
 dataC <- dataA
+
+
+# filtering out NA values for each plot 
 
 dataA <- dataA %>% 
   filter(!is.na(religiosity))
@@ -46,10 +51,13 @@ dataA <- dataA %>%
 dataB <- dataB %>% 
   filter(!is.na(ritual))
 
+dataC <- dataC %>% 
+  filter(!is.na(affil))
+
 # plotting the figure
 
 figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
-  geom_smooth(method = "lm") + #method = "lm" creates a straight line of best fit
+  geom_smooth(method = "lm", se = FALSE) + #method = "lm" creates a straight line of best fit
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   coord_cartesian(ylim = c(0, 50))
@@ -61,7 +69,11 @@ figB <- ggplot(dataB, aes(ritual, claimpercent, color = cond)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   coord_cartesian(ylim = c(0, 50))
 
-
+figC <- ggplot(dataC, aes(affil, claimpercent, color = cond)) +
+  geom_smooth(method = "lm") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  coord_cartesian(ylim = c(0, 50))
 
 plot(figA)
 plot(figB)
+plot(figC)
