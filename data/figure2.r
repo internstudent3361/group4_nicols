@@ -15,6 +15,8 @@ dataA <- data1 %>%
          CT_payments = completion.time..payments.only.,
          religiosity = relig,
          religion = Religion) %>% 
+  mutate(religiosity = abs(religiosity - 5), # reverse coding
+         claimpercent = claimpercent * 100) %>% #turning this into a percentage value
   select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
   as_data_frame() 
 
@@ -30,5 +32,9 @@ dataA$cond[dataA$cond==4] <- 3
 dataA$cond <- factor(dataA$cond,levels= c(0,1,2,3),
                 labels = c("Religious", "Secular", "Noise","Control"))
 
+# plotting the figure
 
+figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
+  geom_smooth(method = "lm") #method = "lm" creates a straight line of best fit
 
+plot(figA)
