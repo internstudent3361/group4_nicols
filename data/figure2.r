@@ -8,6 +8,7 @@ data1 <- read.csv("data/Nichols_et_al_data.csv")
 
 dataA <- data1 %>%                                                          
   filter(include == 0) %>% 
+  
   rename(cond = con,
          claimpercent = claim,
          claimmoney = moneyclaim,
@@ -15,9 +16,13 @@ dataA <- data1 %>%
          CT_payments = completion.time..payments.only.,
          religiosity = relig,
          religion = Religion) %>% 
-  mutate(religiosity = abs(religiosity - 5), # reverse coding
+  
+  mutate(religiosity = abs(religiosity - 5),
+         ritual = abs(ritual - 7),              # reverse coding
          claimpercent = claimpercent * 100) %>% #turning this into a percentage value
+  
   select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
+  
   as_data_frame() 
 
 # Re-order conditions to: religous, secular, noise, and control
@@ -29,12 +34,15 @@ dataA$cond[dataA$cond==4] <- 3
 
 
 # treatment variable
-dataA$cond <- factor(dataA$cond,levels= c(0,1,2,3),
+dataA$cond <- factor(dataA$cond, levels= c(0,1,2,3),
                 labels = c("Religious", "Secular", "Noise","Control"))
 
 # plotting the figure
 
 figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
-  geom_smooth(method = "lm") #method = "lm" creates a straight line of best fit
+  geom_smooth(method = "lm") + #method = "lm" creates a straight line of best fit
+  theme_light() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
 
 plot(figA)
