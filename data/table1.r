@@ -3,6 +3,7 @@
 library(tidyverse)
 library(janitor)
 library(dplyr)
+library(gt)
 
 #loading the data
 
@@ -33,6 +34,26 @@ data1 <- data1 %>%
     impact = (deep + powerful)/2,
     tempo = (fast + abs(slow-7))/2
   ) 
+
+# now we have the new variables (as above), we must find the means, SDs,
+# CIs, and Cohen's Ds for each, grouped by condition.
+# use group_by and summarise functions
+
+data1 %>% 
+  group_by(cond) %>%
+  summarise(mean_claim = mean(claimpercent, na.rm = TRUE),
+            mean_sac = mean(sacred, na.rm = TRUE),
+            mean_neg = mean(negativity, na.rm = TRUE),
+            mean_pos = mean(positivity, na.rm = TRUE),
+            mean_imp = mean(impact, na.rm = TRUE),
+            mean_temp = mean(tempo, na.rm = TRUE),
+            SD_claim = sd(claimpercent, na.rm = TRUE),
+            SD_sac = sd(sacred, na.rm = TRUE),
+            SD_neg = sd(negativity, na.rm = TRUE),
+            SD_pos = sd(positivity, na.rm = TRUE),
+            SD_imp = sd(impact, na.rm = TRUE),
+            SD_temp = sd(tempo, na.rm = TRUE)
+            )
 
 
 
