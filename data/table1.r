@@ -55,6 +55,23 @@ data1 %>%
             SD_temp = sd(tempo, na.rm = TRUE)
             )
 
+# Percent claimed variable
+
+# Control Group (1): Means, SDs, number of observations, standard error and
+# confidence interval lower and upper limits
+
+mean1 <- mean(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # mean
+sd1 <- sd(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # SD
+n1 <- length(data1$cond[data1$cond=="1" & !is.na(data1$cond)]) # number of participants
+se1 <- sd1/sqrt(n1) # standard error
+lCI1 <- mean1 - (1.96*se1)
+uCI1 <- mean1 + (1.96*se1)
+
+
+
+
+
+
 
 
 
