@@ -64,10 +64,35 @@ mean1 <- mean(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # mean
 sd1 <- sd(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # SD
 n1 <- length(data1$cond[data1$cond=="1" & !is.na(data1$cond)]) # number of participants
 se1 <- sd1/sqrt(n1) # standard error
-lCI1 <- mean1 - (1.96*se1)
-uCI1 <- mean1 + (1.96*se1)
+lCI1 <- mean1 - (1.96*se1) # lower 95% CI
+uCI1 <- mean1 + (1.96*se1) # upper 95% CI
 
+# White Noise Group (2)
 
+mean2 <- mean(data1$claimpercent[data1$cond=="2"], na.rm = TRUE) # mean
+sd2 <- sd(data1$claimpercent[data1$cond=="2"], na.rm = TRUE) # SD
+n2 <- length(data1$cond[data1$cond=="2" & !is.na(data1$cond)]) # number of participants
+se2 <- sd2/sqrt(n2) # standard error
+lCI2 <- mean2 - (1.96*se2) # lower 95% CI
+uCI2 <- mean2 + (1.96*se2) #upper 95% CI
+
+# Secular Group (3)
+
+mean3 <- mean(data1$claimpercent[data1$cond=="3"], na.rm = TRUE) # mean
+sd3 <- sd(data1$claimpercent[data1$cond=="3"], na.rm = TRUE) # SD
+n3 <- length(data1$cond[data1$cond=="3" & !is.na(data1$cond)]) # number of participants
+se3 <- sd3/sqrt(n3) # standard error
+lCI3 <- mean3 - (1.96*se3) # lower 95% CI
+uCI3 <- mean3 + (1.96*se3) #upper 95% CI
+
+# Religious Group (4)
+
+mean4 <- mean(data1$claimpercent[data1$cond=="4"], na.rm = TRUE) # mean
+sd4 <- sd(data1$claimpercent[data1$cond=="4"], na.rm = TRUE) # SD
+n4 <- length(data1$cond[data1$cond=="4" & !is.na(data1$cond)]) # number of participants
+se4 <- sd4/sqrt(n4) # standard error
+lCI4 <- mean4 - (1.96*se4) # lower 95% CI
+uCI4 <- mean4 + (1.96*se4) #upper 95% CI
 
 
 
