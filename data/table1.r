@@ -240,27 +240,43 @@ se4i <- sd4i/sqrt(n4i) # standard error
 lCI4i <- mean4i - (1.96*se4i) # lower 95% CI
 uCI4i <- mean4i + (1.96*se4i) #upper 95% CI
 
+#Make religious table
 table1 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
-  M = c(27.33, 5.17, 1.82, 2.54, 2.60, 2.90),
-  SD = c(29.92, 1.39, 0.65, 0.85, 0.81, 1.10),
-  CI = c("[21.52, 33.14]", "[4.90, 5.44]", "[1.70, 1.95]", "[2.37, 2.70]", "[2.45, 2.76]", "[2.70, 3.10]")
-)
+  M = c(mean4c, mean4s, mean4n, mean4p, mean4t, mean4i),
+  SD = c(sd4c, sd4s, sd4n, sd4p, sd4t, sd4i),
+  CI = c("["lCI4c, uCI4c"]", "["lCI4s, uCI4s"]", "["lCI4n, uCI4n"]", "["lCI4p, uCI4p"]", "["lCI4t, uCI4t"]", "["lCI4i, uCI4i"]")
+) 
 table1 %>% 
   gt() %>%
   cols_label(characteristics = "Religious")
 
+#Make secular table
 table2 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
-  M = c(30.32, 4.32, 1.64, 2.72, 2.78, 2.73),
-  SD = c(30.98, 1.35, 0.51, 0.78, 0.82, 1.13),
-  CI = c("[24.34, 36.30]", "[4.06, 4.58]", "[1.55, 1.74]", "[2.56, 2.87]", "[2.62, 2.94]", "[2.51, 2.95]")
+  M = c(mean3c, mean3s, mean3n, mean3p, mean3t, mean3i),
+  SD = c(sd3c, sd3s, sd3n, sd3p, sd3t, sd3i),
+  CI = c("["lCI3c, uCI3c"]", "["lCI3s, uCI3s"]", "["lCI3n, uCI3n"]", "["lCI3p, uCI3p"]", "["lCI3t, uCI3t"]", "["lCI3i, uCI3i"]")
 )
+
 table2 %>% 
   gt() %>%
   cols_label(characteristics = "Secular")
 
-merged <- dplyr::full_join(table1, table2) #need to figure out how to combine two tables
+#Make white noise table
+table3 <- tibble(
+  characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
+  M = c(mean2c, mean2s, mean2n, mean2p, mean2t, mean2i),
+  SD = c(sd2c, sd2s, sd2n, sd2p, sd2t, sd2i),
+  CI = c("["lCI2c, uCI2c"]", "["lCI2s, uCI2s"]", "["lCI2n, uCI2n"]", "["lCI2p, uCI2p"]", "["lCI2t, uCI2t"]", "["lCI2i, uCI2i"]")
+)
+
+table3 %>% 
+  gt() %>%
+  cols_label(characteristics = "White Noise")
+
+
+merged <- dplyr::full_join(table1, table2, table3) #need to figure out how to combine two tables
 
 
 
