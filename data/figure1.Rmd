@@ -5,253 +5,68 @@ date: "04/07/2021"
 output: html_document
 ---
 
+mean values for dishonestly claimed earnings with 95% CIs - density plot
+
+claim percent by:
+data by condition: control, noise, secular, religious
+data by site: USA, Czech Rep., Japan
+
 ## loading libraries
 
-loading libraries that nichols et al. used so i can identify the functions they used
-
-i could not install "glmmADMB" for this version of R and lsmeans is being phased out so i have to use emmeans instead
 ```{r eval = FALSE}
+
 library(tidyverse)
-library(dplyr)
-library(yarrr)
-library(psych)
-library(emmeans)
 library(janitor)
+library(dplyr)
+library(ggplot2)
+library(ggdist)
+
 ```
 
-## reading the csv
+## reading nichols et al csv
 
 ```{r eval = FALSE}
-nichols <- read_csv("data/nichols_et_al_data.csv")
+
+data1 <- read_csv("~/RFiles/nichols/group4_nicols/data/Nichols_et_al_data.csv")
+
 ```
 
-## test running the r script from r markdown
+## cleaning data
 
-### create site
+The data was renamed so it would be easier to enter in R Script. Also only selected the important variables.
 
 ```{r eval = FALSE}
-USA <- nichols[nichols$site=="USA",]
-CZ <- nichols[nichols$site=="CZ",]
-JP <- nichols[nichols$site=="JP",]
-sites <- c("USA", "CZ", "JP")
-```
 
-### histogram of percentage of money claimed dishonestly
-
-```{r eval = FALSE}
-par(mfrow=c(1,1))
-hist(nichols$claim, breaks = seq(0,100,5), freq = F,xlab = 'Claim', ylab = 'Probability',
-     main = 'Histogram with Normal PDF',col="grey78", border="deepskyblue1", lty=1,
-     ylim=c(0,0.05),xlim=c(0,100))
-```
-
-histogram not completed - figuring out functions still and need to figure out the "sit" tibble.
-
-i think line 42 creates the rows, line 43 is creating a histogram and labelling the y and x axis. line 44 is for colour and line 45 specifies the x and y limits.
-
-### histograms of claims per site
-
-```{r eval = FALSE}
-par(mfrow=c(1,3))
-for (i in 1:3){ 
-  sit = eval(parse(text = sites[i])) 
-  hist(sit$claim, breaks = seq(0,100,5), freq = F, 
-       main = parse(text = sites[i]), col="grey78", border="deepskyblue1",
-       lty=1, ylim=c(0,0.1))} 
-```
-
-not sure what i in line 56 is doing. eval(parse), according to help, returns an unevaluated function call. 
-
-also an uncompleted plot
-
-### pirate plot (not sure if this is part of the same plot?)
-
-#### show between-site differences in the percentage of money claimed, age, religiousness, and the frequency of ritual behavior
-
-pirateplot is from the yarrr library.
-
-not sure what this plot is referring to? also still figuring out specific functions but nichols have labelled each line of code.
-
-formula = claim ~ site shows the distribution of claims based on site.
-
-```{r results='asis', message=FALSE, warning=FALSE, echo=FALSE, fig.height=9, fig.width=9}
-
-{par(mfrow=c(2,2))
-  {pirateplot(formula = claim ~ site,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}
-  
-  
-  {pirateplot(formula = age ~ site,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}
-  
-  {pirateplot(formula = relig ~ site,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}
-  
-  {pirateplot(formula = ritual ~ site,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}}
-```
-
-
-#### pirate plot for the same variables as above, just by condition
-
-```{r results='asis', message=FALSE, warning=FALSE, echo=FALSE, fig.height=9, fig.width=9}
-
-{par(mfrow=c(2,2))
-  {pirateplot(formula = claim ~ con,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}
-  
-  {pirateplot(formula = age ~ con,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}
-  
-  {pirateplot(formula = relig ~ con,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}
-  
-  {pirateplot(formula = ritual ~ con,
-              data = nichols,
-              theme = 0,
-              main = "",
-              pal = "basel", # southpark color palette
-              bean.b.o = 1, # Bean fill
-              bean.f.o = .005, # Bean fill
-              point.o = .7, # Points
-              inf.f.o = .7, # Inference fill
-              inf.b.o = .96, # Inference border
-              avg.line.o = 1, # Aver line
-              bar.f.o = .2, # Bar
-              inf.f.col = "white", # Inf fill col
-              inf.b.col = "black", # Inf border col
-              avg.line.col = "black", # avg line col
-              point.pch = 21,
-              point.bg = "white",
-              point.cex = 1,
-              point.lwd = 2,
-              bean.lwd = 2)}}
+data1 <- data1 %>%  
+  filter(include == 0) %>% 
+  rename(cond = con,
+         claimpercent = claim,
+         claimmoney = moneyclaim,
+         CT_practice = `completion time (practice included)`,
+         CT_payments = `completion time (payments only)`,
+         religiosity = relig,
+         religion = Religion) %>% 
+  select(site, claimpercent, cond)
 
 ```
 
+## graphing Fig 1 - data by condition
+
+```{r}
+
+fig1_condition <- ggplot(data = data1) +
+  geom_col(aes(x = claimpercent, y = cond)) +
+  geom_area(aes(x = claimpercent, y = cond)) +
+  scale_x_continuous(
+    name = "Percent Claimed",
+    labels = c(0, 20, 40, 60, 80, 100),
+    breaks = c(0, 20, 40, 60, 80, 100)) +
+  scale_y_discrete(
+    name = NULL) +
+  ggtitle(label = "Data By Condition") 
+
+```
+
+Need to name the conditions, and change claim percent so the numbers and labels line up. But, the bars seem right so far (except they are without the error bars).
+
+Combining geom_area and geom_col did not get the result I wanted. I will have to try some other functions to see what works.
