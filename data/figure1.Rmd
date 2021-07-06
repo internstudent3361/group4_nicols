@@ -70,3 +70,19 @@ fig1_condition <- ggplot(data = data1) +
 Need to name the conditions, and change claim percent so the numbers and labels line up. But, the bars seem right so far (except they are without the error bars).
 
 Combining geom_area and geom_col did not get the result I wanted. I will have to try some other functions to see what works.
+
+### trying raincloud plot
+
+```{r}
+
+fig1_condition_rp <- ggplot(data1, aes(x = cond, y = claimpercent)) +
+  ggdist::stat_halfeye(
+    adjust = .5,
+    width = .5,
+    .width = 0,
+    point_colour = NA
+  ) +
+  coord_flip()
+
+```
+
