@@ -19,7 +19,7 @@ library(tidyverse)
 library(janitor)
 library(dplyr)
 library(ggplot2)
-library(ggdist)
+library(ggdist) #used for first raincloud plot
 
 ```
 
@@ -75,7 +75,12 @@ Combining geom_area and geom_col did not get the result I wanted. I will have to
 
 ```{r}
 
+
 fig1_condition_rp <- ggplot(data1, aes(x = cond, y = claimpercent)) +
+  geom_col(
+    aes(x = as.numeric(cond)+.5),
+    width = .3
+  ) +
   ggdist::stat_halfeye(
     adjust = .5,
     width = .5,
@@ -83,6 +88,5 @@ fig1_condition_rp <- ggplot(data1, aes(x = cond, y = claimpercent)) +
     point_colour = NA
   ) +
   coord_flip()
-
 ```
 
