@@ -240,6 +240,52 @@ se4i <- sd4i/sqrt(n4i) # standard error
 lCI4i <- mean4i - (1.96*se4i) # lower 95% CI
 uCI4i <- mean4i + (1.96*se4i) #upper 95% CI
 
+# computing Cohen's d
+
+# % claimed
+
+#relig vs sec
+d1c <- abs((mean4c-mean3c)/sqrt((sd4c^2+sd3c^2)/2))
+#relig vs noise
+d2c <- abs((mean4c-mean2c)/sqrt((sd4c^2+sd2c^2)/2))
+#relig vs control
+d3c <- abs((mean4c-mean1c)/sqrt((sd4c^2+sd1c^2)/2))
+
+# sacredness
+
+#relig vs sec
+d1s <- abs((mean4s-mean3s)/sqrt((sd4s^2+sd3s^2)/2))
+#relig vs noise
+d2s <- abs((mean4s-mean2s)/sqrt((sd4s^2+sd2s^2)/2))
+
+# negativity
+
+#relig vs sec
+d1n <- abs((mean4n-mean3n)/sqrt((sd4n^2+sd3n^2)/2))
+#relig vs noise
+d2n <- abs((mean4n-mean2n)/sqrt((sd4n^2+sd2n^2)/2))
+
+# positivity
+
+#relig vs sec
+d1p <- abs((mean4p-mean3p)/sqrt((sd4p^2+sd3p^2)/2))
+#relig vs noise
+d2p <- abs((mean4p-mean2p)/sqrt((sd4p^2+sd2p^2)/2))
+
+# tempo
+
+#relig vs sec
+d1t <- abs((mean4t-mean3t)/sqrt((sd4t^2+sd3t^2)/2))
+#relig vs noise
+d2t <- abs((mean4t-mean2t)/sqrt((sd4t^2+sd2t^2)/2))
+
+# impact
+
+#relig vs sec
+d1i <- abs((mean4i-mean3i)/sqrt((sd4i^2+sd3i^2)/2))
+#relig vs noise
+d2i <- abs((mean4i-mean2i)/sqrt((sd4i^2+sd2i^2)/2))
+
 
 # making the tables
 #Make religious table
