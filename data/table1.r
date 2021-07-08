@@ -247,8 +247,10 @@ table1 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean4c, mean4s, mean4n, mean4p, mean4t, mean4i),
   SD = c(sd4c, sd4s, sd4n, sd4p, sd4t, sd4i),
-  CI = c("["lCI4c, uCI4c"]", "["lCI4s, uCI4s"]", "["lCI4n, uCI4n"]", "["lCI4p, uCI4p"]", "["lCI4t, uCI4t"]", "["lCI4i, uCI4i"]")
+  lCI = c(lCI4c, lCI4s, lCI4n, lCI4p, lCI4t, lCI4i),
+  uCI - c(uCI4c, uCI4s, uCI4n, uCI4p, uCI4t, uCI4i)
 ) 
+
 table1 %>% 
   gt() %>%
   cols_label(characteristics = "Religious")
@@ -258,7 +260,8 @@ table2 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean3c, mean3s, mean3n, mean3p, mean3t, mean3i),
   SD = c(sd3c, sd3s, sd3n, sd3p, sd3t, sd3i),
-  CI = c("["lCI3c, uCI3c"]", "["lCI3s, uCI3s"]", "["lCI3n, uCI3n"]", "["lCI3p, uCI3p"]", "["lCI3t, uCI3t"]", "["lCI3i, uCI3i"]")
+  lCI = c(lCI3c, lCI3s, lCI3n, lCI3p, lCI3t, lCI3i),
+  uCI = c(uCI3c, uCI3s, uCI3n, uCI3p, uCI3t, uCI3i)
 )
 
 table2 %>% 
@@ -270,7 +273,8 @@ table3 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean2c, mean2s, mean2n, mean2p, mean2t, mean2i),
   SD = c(sd2c, sd2s, sd2n, sd2p, sd2t, sd2i),
-  CI = c("["lCI2c, uCI2c"]", "["lCI2s, uCI2s"]", "["lCI2n, uCI2n"]", "["lCI2p, uCI2p"]", "["lCI2t, uCI2t"]", "["lCI2i, uCI2i"]")
+  lCI = c(lCI2c, lCI2s, lCI2n, lCI2p, lCI2t, lCI2i),
+  uCI = c(uCI2c, uCI2s, uCI2n, uCI2p, uCI2t, uCI2i)
 )
 
 table3 %>% 
@@ -278,5 +282,5 @@ table3 %>%
   cols_label(characteristics = "White Noise")
 
 
-merged <- dplyr::full_join(table1, table2, table3) #need to figure out how to combine two tables
+merged <- dplyr::full_join(table1, table2, table3) #incorrect, need to try to find another way
 
