@@ -240,6 +240,8 @@ se4i <- sd4i/sqrt(n4i) # standard error
 lCI4i <- mean4i - (1.96*se4i) # lower 95% CI
 uCI4i <- mean4i + (1.96*se4i) #upper 95% CI
 
+
+# making the tables
 #Make religious table
 table1 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
@@ -277,6 +279,4 @@ table3 %>%
 
 
 merged <- dplyr::full_join(table1, table2, table3) #need to figure out how to combine two tables
-
-
 
