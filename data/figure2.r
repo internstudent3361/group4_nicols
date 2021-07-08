@@ -38,7 +38,8 @@ dataA$cond[dataA$cond==3] <- 1 # we're changing the number twice which screws up
 dataA$cond[dataA$cond==4] <- 3
 
 
-# treatment variable
+# labelling the levels of the treatment variable
+
 dataA$cond <- factor(dataA$cond, levels= c(0,1,2,3),
                 labels = c("Religious", "Secular", "Noise","Control"))
 
@@ -56,7 +57,10 @@ groupA <- dataA %>%
          upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
   ungroup()
   
+# labelling the levels of religious affiliation 
 
+groupA$affil <- factor(groupA$affil, levels = c(0, 1), 
+                       labels = c("Non-affiliated", "Affiliated"))
 
 
 # plotting the figure
@@ -66,25 +70,28 @@ figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
   theme_light() + #Gives white background to plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + #Removes gridlines from plot
   coord_cartesian(ylim = c(0, 50)) + #Sets y limit to 50
-  labs(x = "Religiosity", y = "Percentage claimed", title = "Condition*Religiosity") + #axis labels and title
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")   #centres title text and removes legend
-
+  labs(x = "Religiosity", y = "Percentage claimed") + #axis labels 
+  theme(legend.position = "none") +  #removes legend
+  facet_grid(. ~ "Condition*Religiosity") # title, we use facet_grid to put it in a grey box
 
 figB <- ggplot(dataA, aes(ritual, claimpercent, color = cond)) +
   geom_smooth(method = "lm", se = FALSE) +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   coord_cartesian(ylim = c(0, 50)) +
-  labs(x = "Ritual frequency", y = "Percentage claimed", title = "Condition*Ritual frequency") +
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+  labs(x = "Ritual frequency", y = "Percentage claimed") +
+  theme(legend.position = "none") +
+  facet_grid(. ~ "Condition*Ritual frequency")
 
 figC <- ggplot(groupA, aes(affil, mean, color = cond)) +
-  geom_line(aes(cond = cond)) +
-  geom_errorbar(data = groupA, aes(ymin = lowerCI, ymax = upperCI)) +
+  geom_line(aes(group = cond), position = position_dodge(width = 0.5)) + #group our lines by condition, we use position dodge so nothing overlaps
+  geom_errorbar(data = groupA, aes(ymin = lowerCI, ymax = upperCI), width = 0.2, position = position_dodge(width = 0.5)) +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  labs(x = "Religious affiliation", y = "Percentage claimed", title = "Condition*Religious affiliation") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  ylim(0, 50) +
+  scale_x_discrete() +
+  labs(x = "Religious affiliation", y = "Percentage claimed") +
+  facet_grid(. ~ "Condition*Religious affiliation")
 
 grid.arrange(figA, figB, figC, ncol = 3)
 
