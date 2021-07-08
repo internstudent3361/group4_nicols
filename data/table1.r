@@ -298,9 +298,7 @@ table1 <- tibble(
   d = c("-", "-", "-", "-", "-", "-")
 ) 
 
-table1 %>% mutate_if(is.numeric, ~round(., 2))
-
-table1 %>%
+table1 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Religious") 
 
@@ -314,7 +312,7 @@ table2 <- tibble(
   d = c(d1c, d1s, d1n, d1p, d1t, d1i)
 )
 
-table2 %>% 
+table2 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Secular")
 
@@ -328,7 +326,7 @@ table3 <- tibble(
   d = c(d2c, d2s, d2n, d2p, d2t, d2i)
 )
 
-table3 %>% 
+table3 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "White Noise")
 
@@ -342,7 +340,7 @@ table4 <- tibble(
   d = c(d3c, "-", "-", "-", "-", "-")
 )
 
-table4 %>% 
+table4 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Control Group")
 
