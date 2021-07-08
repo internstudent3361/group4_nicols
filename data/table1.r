@@ -245,8 +245,10 @@ table1 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean4c, mean4s, mean4n, mean4p, mean4t, mean4i),
   SD = c(sd4c, sd4s, sd4n, sd4p, sd4t, sd4i),
-  CI = c("["lCI4c, uCI4c"]", "["lCI4s, uCI4s"]", "["lCI4n, uCI4n"]", "["lCI4p, uCI4p"]", "["lCI4t, uCI4t"]", "["lCI4i, uCI4i"]")
+  lCI = c(lCI4c, lCI4s, lCI4n, lCI4p, lCI4t, lCI4i),
+  uCI - c(uCI4c, uCI4s, uCI4n, uCI4p, uCI4t, uCI4i)
 ) 
+
 table1 %>% 
   gt() %>%
   cols_label(characteristics = "Religious")
