@@ -298,7 +298,9 @@ table1 <- tibble(
   d = c("-", "-", "-", "-", "-", "-")
 ) 
 
-table1 %>% 
+table1 %>% mutate_if(is.numeric, ~round(., 2))
+
+table1 %>%
   gt() %>%
   cols_label(characteristics = "Religious") 
 
