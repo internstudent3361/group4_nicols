@@ -4,6 +4,7 @@ library(gridExtra)
 library(gmodels)
 
 
+
 data1 <- read.csv("data/Nichols_et_al_data.csv")
 
 
@@ -66,34 +67,40 @@ groupA$affil <- factor(groupA$affil, levels = c(0, 1),
 # plotting the figure
 
 figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
-  geom_smooth(method = "lm", se = FALSE) + #method = "lm" creates a straight line of best fit
+  geom_smooth(method = "lm", se = FALSE, size = 1.5) + #method = "lm" creates a straight line of best fit
   theme_light() + #Gives white background to plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + #Removes gridlines from plot
   coord_cartesian(ylim = c(0, 50)) + #Sets y limit to 50
   labs(x = "Religiosity", y = "Percentage claimed") + #axis labels 
   theme(legend.position = "none") +  #removes legend
-  facet_grid(. ~ "Condition*Religiosity") # title, we use facet_grid to put it in a grey box
+  facet_grid(. ~ "Condition*Religiosity") + # title, we use facet_grid to put it in a grey box
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4")) #change the colours of the lines to fit source
 
 figB <- ggplot(dataA, aes(ritual, claimpercent, color = cond)) +
-  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 1.5) +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   coord_cartesian(ylim = c(0, 50)) +
   labs(x = "Ritual frequency", y = "Percentage claimed") +
   theme(legend.position = "none") +
-  facet_grid(. ~ "Condition*Ritual frequency")
+  facet_grid(. ~ "Condition*Ritual frequency") +
+  scale_x_continuous(breaks = seq(0, 6, 1)) +  #adjusting the tick marks so 7 marks appear
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
 
 figC <- ggplot(groupA, aes(affil, mean, color = cond)) +
-  geom_line(aes(group = cond), position = position_dodge(width = 0.5)) + #group our lines by condition, we use position dodge so nothing overlaps
-  geom_errorbar(data = groupA, aes(ymin = lowerCI, ymax = upperCI), width = 0.2, position = position_dodge(width = 0.5)) +
+  geom_line(aes(group = cond), position = position_dodge(width = 0.5), size = 1.5) + #group our lines by condition, we use position dodge so nothing overlaps
+  geom_errorbar(data = groupA, aes(ymin = lowerCI, ymax = upperCI), width = 0.2, position = position_dodge(width = 0.5), size = 1.3) +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   ylim(0, 50) +
   scale_x_discrete() +
   labs(x = "Religious affiliation", y = "Percentage claimed") +
-  facet_grid(. ~ "Condition*Religious affiliation")
+  facet_grid(. ~ "Condition*Religious affiliation") +
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
+
 
 grid.arrange(figA, figB, figC, ncol = 3)
+
 
 # nice work so far!! A couple of ideas for figure 2c:
 # you're absolutely right, it looks like the authors did use 95% CI for the figure
