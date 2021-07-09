@@ -107,17 +107,3 @@ figC <- ggplot(groupA, aes(affil, mean, color = cond)) +
 
 grid.arrange(figA, figB, figC, ncol = 3)
 
-
-# nice work so far!! A couple of ideas for figure 2c:
-# you're absolutely right, it looks like the authors did use 95% CI for the figure
-
-# option 1: there are functions you can use to compute the CI yourself. I found an example here: https://stackoverflow.com/questions/35953394/calculating-length-of-95-ci-using-dplyr
-  # library(gmodels) has a function ci() that will help you get the mean, low CI, high CI, and sd (see example above)
-  # you want to make sure to use group_by before using the ci()
-  # pretty much you want to end up with a dataframe that has the following variables (condition, affiliation, mean, lowCI, and highCI, and sd can't hurt)
-  # then you should be able to use geom_line() and geom_errorbar()
-
-# option 2: recreate the plot using se instead of CI
-  # the error bars will be smaller, but I think this is the second best option as you will still be able to plot some measure of error
-  # se = sd / sqrt(n)
-
