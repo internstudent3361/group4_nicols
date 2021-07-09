@@ -1,6 +1,9 @@
 library(tidyverse)
 library(janitor)
 library(gridExtra)
+library(gmodels)
+
+
 
 data1 <- read.csv("data/Nichols_et_al_data.csv")
 
@@ -20,7 +23,8 @@ dataA <- data1 %>%
   
   mutate(religiosity = abs(religiosity - 5),
          ritual = abs(ritual - 7),              # reverse coding
-         claimpercent = claimpercent * 100) %>%      #turning this into a percentage value
+         claimpercent = claimpercent * 100,     #turning this into a percentage value
+         affil = as.factor(affil_cong))     
          
   
   select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
@@ -35,67 +39,71 @@ dataA$cond[dataA$cond==3] <- 1 # we're changing the number twice which screws up
 dataA$cond[dataA$cond==4] <- 3
 
 
-# treatment variable
+# labelling the levels of the treatment variable
+
 dataA$cond <- factor(dataA$cond, levels= c(0,1,2,3),
                 labels = c("Religious", "Secular", "Noise","Control"))
 
-# creating variables so we can filter out specific values for each plot
-dataB <- dataA
-dataC <- dataA
+dataB <- dataA %>% 
+  filter(cond == "Religious")
+  
+  
+  
+#Make a new dataframe that contains CI limits for all conditions based on whether participants are religiously affiliated or not
 
+groupA <- dataA %>% 
+  group_by(cond, affil) %>% 
+  summarise(mean = mean(claimpercent, na.rm = TRUE),
+            sd = sd(claimpercent, na.rm = TRUE),
+            n = n()) %>% 
+  drop_na() %>% 
+  mutate(se = sd / sqrt(n),
+         lowerCI = mean - qt(1 - (0.05/2), n - 1) * se,
+         upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
+  ungroup()
+  
+# labelling the levels of religious affiliation 
 
-# filtering out NA values for each plot 
+groupA$affil <- factor(groupA$affil, levels = c(0, 1), 
+                       labels = c("Non-affiliated", "Affiliated"))
 
-dataA <- dataA %>% 
-  filter(!is.na(religiosity))
-
-dataB <- dataB %>% 
-  filter(!is.na(ritual))
-
-dataC <- dataC %>% 
-  filter(!is.na(affil))
 
 # plotting the figure
 
 figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
-  geom_smooth(method = "lm", se = FALSE) + #method = "lm" creates a straight line of best fit
+  geom_smooth(method = "lm", se = FALSE, size = 1.5) + #method = "lm" creates a straight line of best fit
+  geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") + #this creates the SE for the religious condition
   theme_light() + #Gives white background to plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + #Removes gridlines from plot
   coord_cartesian(ylim = c(0, 50)) + #Sets y limit to 50
-  labs(x = "Religiosity", y = "Percentage claimed", title = "Condition*Religiosity") + #axis labels and title
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")  #centres title text and removes legend
-  
+  labs(x = "Religiosity", y = "Percentage claimed") + #axis labels 
+  theme(legend.position = "none") +  #removes legend
+  facet_grid(. ~ "Condition*Religiosity") + # title, we use facet_grid to put it in a grey box
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4")) #change the colours of the lines to fit source
 
-
-figB <- ggplot(dataB, aes(ritual, claimpercent, color = cond)) +
-  geom_smooth(method = "lm", se = FALSE) +
+figB <- ggplot(dataA, aes(ritual, claimpercent, color = cond)) +
+  geom_smooth(method = "lm", se = FALSE, size = 1.5) +
+  geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   coord_cartesian(ylim = c(0, 50)) +
-  labs(x = "Ritual frequency", y = "Percentage claimed", title = "Condition*Ritual frequency") +
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+  labs(x = "Ritual frequency", y = "Percentage claimed") +
+  theme(legend.position = "none") +
+  facet_grid(. ~ "Condition*Ritual frequency") +
+  scale_x_continuous(breaks = seq(0, 6, 1)) +  #adjusting the tick marks so 7 marks appear
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
 
-figC <- ggplot(dataC, aes(affil, claimpercent, color = cond)) +
-  stat_smooth(method = "lm", se = FALSE) +
+figC <- ggplot(groupA, aes(affil, mean, color = cond)) +
+  geom_line(aes(group = cond), position = position_dodge(width = 0.5), size = 1.5) + #group our lines by condition, we use position dodge so nothing overlaps
+  geom_errorbar(data = groupA, aes(ymin = lowerCI, ymax = upperCI), width = 0.2, position = position_dodge(width = 0.5), size = 1.3) +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  coord_cartesian(ylim = c(0, 50), xlim = c(0, 1)) +
-  scale_x_discrete(limits = c(0, 1)) +
-  labs(x = "Religious affiliation", y = "Percentage claimed", title = "Condition*Religious affiliation") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  ylim(0, 50) +
+  scale_x_discrete() +
+  labs(x = "Religious affiliation", y = "Percentage claimed") +
+  facet_grid(. ~ "Condition*Religious affiliation") +
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
+
 
 grid.arrange(figA, figB, figC, ncol = 3)
-
-# nice work so far!! A couple of ideas for figure 2c:
-# you're absolutely right, it looks like the authors did use 95% CI for the figure
-
-# option 1: there are functions you can use to compute the CI yourself. I found an example here: https://stackoverflow.com/questions/35953394/calculating-length-of-95-ci-using-dplyr
-  # library(gmodels) has a function ci() that will help you get the mean, low CI, high CI, and sd (see example above)
-  # you want to make sure to use group_by before using the ci()
-  # pretty much you want to end up with a dataframe that has the following variables (condition, affiliation, mean, lowCI, and highCI, and sd can't hurt)
-  # then you should be able to use geom_line() and geom_errorbar()
-
-# option 2: recreate the plot using se instead of CI
-  # the error bars will be smaller, but I think this is the second best option as you will still be able to plot some measure of error
-  # se = sd / sqrt(n)
 
