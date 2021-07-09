@@ -24,7 +24,7 @@ dataA <- data1 %>%
   mutate(religiosity = abs(religiosity - 5),
          ritual = abs(ritual - 7),              # reverse coding
          claimpercent = claimpercent * 100,     #turning this into a percentage value
-         affil = as.factor(affil_cong)) %>%      
+         affil = as.factor(affil_cong))     
          
   
   select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
