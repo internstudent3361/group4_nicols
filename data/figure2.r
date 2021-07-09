@@ -44,6 +44,10 @@ dataA$cond[dataA$cond==4] <- 3
 dataA$cond <- factor(dataA$cond, levels= c(0,1,2,3),
                 labels = c("Religious", "Secular", "Noise","Control"))
 
+dataB <- dataA %>% 
+  filter(cond == "Religious")
+  
+  
   
 #Make a new dataframe that contains CI limits for all conditions based on whether participants are religiously affiliated or not
 
@@ -68,6 +72,7 @@ groupA$affil <- factor(groupA$affil, levels = c(0, 1),
 
 figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
   geom_smooth(method = "lm", se = FALSE, size = 1.5) + #method = "lm" creates a straight line of best fit
+  geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") + #this creates the SE for the religious condition
   theme_light() + #Gives white background to plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + #Removes gridlines from plot
   coord_cartesian(ylim = c(0, 50)) + #Sets y limit to 50
@@ -78,6 +83,7 @@ figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
 
 figB <- ggplot(dataA, aes(ritual, claimpercent, color = cond)) +
   geom_smooth(method = "lm", se = FALSE, size = 1.5) +
+  geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   coord_cartesian(ylim = c(0, 50)) +
