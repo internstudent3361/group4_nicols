@@ -373,7 +373,7 @@ gt_tbl <- gt(data_tables) %>%
     label = "Control (n = 100)",
     columns = c(Control.M, Control.SD, Control.lCI, Control.uCI, Control.d)
   ) %>%
-  cols_label(Religious.characteristics = "Religious", 
+  cols_label(Religious.characteristics = "Characteristics", 
              Religious.M = "M",
              Religious.SD = "SD",
              Religious.lCI = "lCI",
@@ -513,39 +513,4 @@ gt_tbl <- gt(data_tables) %>%
   
   cols_hide(
     columns = c(Secular.characteristics, WhiteNoise.characteristics, Control.characteristics))
-
 gt_tbl
-    
-#Below are attempts 
-gt(data_tables) %>% fmt_number(decimals = 2)
-
-gt_tbl <- gt(table1)
-gt_tbl %>% fmt_number(decimals = 2)
-
-gt_tbl <- 
-  table1 %>% 
-  tab_row_group(
-    label = "Religious",
-    rows = 1:6
-  ) %>%
-  tab_row_group(
-    label = "country",
-    rows = c("Australia", "Greenland")
-  ) %>%
-  tab_row_group(
-    label = "subregion",
-    rows = c("New Guinea", "Borneo")
-  )
-
-tab_1 <-
-  table1 %>%
-  gt() %>%
-  fmt_number(
-    columns = M,
-    decimals = 2,
-    use_seps = FALSE
-  ) 
-tab_1
-
-merged <- dplyr::full_join(table1, table2, table3) #incorrect, need to try to find another way
-
