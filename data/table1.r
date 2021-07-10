@@ -357,7 +357,22 @@ data_tables <- data.frame(Religious = table1,
 gt_tbl <- gt(data_tables) %>% 
   tab_source_note(
     source_note = "M = Mean; SD = Standard Deviation; CI = 95% Confidence Intervals. Cohen's d represents the effect size of comparisons between musical conditions.") %>%
-  fmt_markdown(columns = TRUE) %>% #render cell contents as html
+  tab_spanner(
+    label = "Religious (n = 102)",
+    columns = c(Religious.M, Religious.SD, Religious.lCI, Religious.uCI, Religious.d)
+  ) %>%
+  tab_spanner(
+    label = "Secular (n = 103)",
+    columns = c(Secular.M, Secular.SD, Secular.lCI, Secular.uCI, Secular.d)
+  ) %>%
+  tab_spanner(
+    label = "White Noise (n = 103)",
+    columns = c(WhiteNoise.M, WhiteNoise.SD, WhiteNoise.lCI, WhiteNoise.uCI, WhiteNoise.d)
+  ) %>%
+  tab_spanner(
+    label = "Control (n = 100)",
+    columns = c(Control.M, Control.SD, Control.lCI, Control.uCI, Control.d)
+  ) %>%
   cols_label(Religious.characteristics = "Religious", 
              Religious.M = "M",
              Religious.SD = "SD",
@@ -494,9 +509,13 @@ gt_tbl <- gt(data_tables) %>%
     columns = Control.d,
     decimals = 2,
     use_seps = FALSE
-  ) 
-gt_tbl
+  ) %>%
+  
+  cols_hide(
+    columns = c(Secular.characteristics, WhiteNoise.characteristics, Control.characteristics))
 
+gt_tbl
+    
 #Below are attempts 
 gt(data_tables) %>% fmt_number(decimals = 2)
 
