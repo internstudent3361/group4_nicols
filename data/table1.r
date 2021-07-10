@@ -60,8 +60,8 @@ data1 %>%
 
 # Control Group (1)
 
-mean1c <- mean(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # mean
-sd1c <- sd(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # SD
+mean1c <- mean(data1$claimpercent[data1$cond=="1"], na.rm = TRUE)*100 # mean
+sd1c <- sd(data1$claimpercent[data1$cond=="1"], na.rm = TRUE)*100 # SD
 n1c <- length(data1$cond[data1$cond=="1" & !is.na(data1$cond)]) # number of participants
 se1c <- sd1c/sqrt(n1c) # standard error
 lCI1c <- mean1c - (1.96*se1c) # lower 95% CI
@@ -69,8 +69,8 @@ uCI1c <- mean1c + (1.96*se1c) # upper 95% CI
 
 # White Noise Group (2)
 
-mean2c <- mean(data1$claimpercent[data1$cond=="2"], na.rm = TRUE) # mean
-sd2c <- sd(data1$claimpercent[data1$cond=="2"], na.rm = TRUE) # SD
+mean2c <- mean(data1$claimpercent[data1$cond=="2"], na.rm = TRUE)*100 # mean
+sd2c <- sd(data1$claimpercent[data1$cond=="2"], na.rm = TRUE)*100 # SD
 n2c <- length(data1$cond[data1$cond=="2" & !is.na(data1$cond)]) # number of participants
 se2c <- sd2c/sqrt(n2c) # standard error
 lCI2c <- mean2c - (1.96*se2c) # lower 95% CI
@@ -78,8 +78,8 @@ uCI2c <- mean2c + (1.96*se2c) #upper 95% CI
 
 # Secular Group (3)
 
-mean3c <- mean(data1$claimpercent[data1$cond=="3"], na.rm = TRUE) # mean
-sd3c <- sd(data1$claimpercent[data1$cond=="3"], na.rm = TRUE) # SD
+mean3c <- mean(data1$claimpercent[data1$cond=="3"], na.rm = TRUE)*100 # mean
+sd3c <- sd(data1$claimpercent[data1$cond=="3"], na.rm = TRUE)*100 # SD
 n3c <- length(data1$cond[data1$cond=="3" & !is.na(data1$cond)]) # number of participants
 se3c <- sd3c/sqrt(n3c) # standard error
 lCI3c <- mean3c - (1.96*se3c) # lower 95% CI
@@ -87,8 +87,8 @@ uCI3c <- mean3c + (1.96*se3c) #upper 95% CI
 
 # Religious Group (4)
 
-mean4c <- mean(data1$claimpercent[data1$cond=="4"], na.rm = TRUE) # mean
-sd4c <- sd(data1$claimpercent[data1$cond=="4"], na.rm = TRUE) # SD
+mean4c <- mean(data1$claimpercent[data1$cond=="4"], na.rm = TRUE)*100 # mean
+sd4c <- sd(data1$claimpercent[data1$cond=="4"], na.rm = TRUE)*100 # SD
 n4c <- length(data1$cond[data1$cond=="4" & !is.na(data1$cond)]) # number of participants
 se4c <- sd4c/sqrt(n4c) # standard error
 lCI4c <- mean4c - (1.96*se4c) # lower 95% CI
@@ -298,6 +298,10 @@ table1 <- tibble(
   d = c("-", "-", "-", "-", "-", "-")
 ) 
 
+gt(table1) %>% 
+  cols_label(characteristics = "Religious") %>% decimals = 2
+
+
 table1 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Religious") 
@@ -333,16 +337,195 @@ table3 %>% mutate_if(is.numeric, ~round(., 2)) %>%
 #Make control group table
 table4 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
-  M = c(mean1c, "-", "-", "-", "-", "-"),
-  SD = c(sd1c, "-", "-", "-", "-", "-"),
-  lCI = c(lCI1c, "-", "-", "-", "-", "-"),
-  uCI = c(uCI1c, "-", "-", "-", "-", "-"),
-  d = c(d3c, "-", "-", "-", "-", "-")
+  M = c(mean1c, NA, NA, NA, NA, NA),
+  SD = c(sd1c, NA, NA, NA, NA, NA),
+  lCI = c(lCI1c, NA, NA, NA, NA, NA),
+  uCI = c(uCI1c, NA, NA, NA, NA, NA),
+  d = c(d3c, NA, NA, NA, NA, NA)
 )
 
 table4 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Control Group")
+
+
+data_tables <- data.frame(Religious = table1, 
+                          Secular = table2,
+                          WhiteNoise = table3,
+                          Control = table4)
+
+data_tables %>% 
+  gt() %>% 
+  fmt_markdown(columns = TRUE) %>% #render cell contents as html
+  cols_label(Religious.characteristics = "Religious", 
+             Religious.M = "M",
+             Religious.SD = "SD",
+             Religious.lCI = "lCI",
+             Religious.uCI = "uCI",
+             Religious.d = "d",
+             Secular.characteristics = "Secular",
+             Secular.M = "M",
+             Secular.SD = "SD",
+             Secular.lCI = "lCI",
+             Secular.uCI = "uCI",
+             Secular.d = "d",
+             WhiteNoise.characteristics = "White Noise",
+             WhiteNoise.M = "M",
+             WhiteNoise.SD = "SD",
+             WhiteNoise.lCI = "lCI",
+             WhiteNoise.uCI = "uCI",
+             WhiteNoise.d = "d",
+             Control.characteristics = "Control",
+             Control.M = "M",
+             Control.SD = "SD",
+             Control.lCI = "lCI",
+             Control.uCI = "uCI",
+             Control.d = "d") %>%
+  fmt_number(
+    columns = Religious.M,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+
+  fmt_number(
+    columns = Religious.SD,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = Religious.lCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = Religious.uCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = Secular.M,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = Secular.SD,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = Secular.lCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = Secular.uCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = Secular.d,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = WhiteNoise.M,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = WhiteNoise.SD,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = WhiteNoise.lCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>% 
+  
+  fmt_number(
+    columns = WhiteNoise.uCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>%
+  
+  fmt_number(
+    columns = WhiteNoise.d,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>%
+  
+  fmt_number(
+    columns = Control.M,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>%
+  
+  fmt_number(
+    columns =  Control.SD,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>%
+  
+  fmt_number(
+    columns = Control.lCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>%
+  
+  fmt_number(
+    columns = Control.uCI,
+    decimals = 2,
+    use_seps = FALSE
+  ) %>%
+  
+  fmt_number(
+    columns = Control.d,
+    decimals = 2,
+    use_seps = FALSE
+  ) 
+
+
+#Below are attempts 
+gt(data_tables) %>% fmt_number(decimals = 2)
+
+gt_tbl <- gt(table1)
+gt_tbl %>% fmt_number(decimals = 2)
+
+gt_tbl <- 
+  table1 %>% 
+  tab_row_group(
+    label = "Religious",
+    rows = 1:6
+  ) %>%
+  tab_row_group(
+    label = "country",
+    rows = c("Australia", "Greenland")
+  ) %>%
+  tab_row_group(
+    label = "subregion",
+    rows = c("New Guinea", "Borneo")
+  )
+
+tab_1 <-
+  table1 %>%
+  gt() %>%
+  fmt_number(
+    columns = M,
+    decimals = 2,
+    use_seps = FALSE
+  ) 
+tab_1
 
 merged <- dplyr::full_join(table1, table2, table3) #incorrect, need to try to find another way
 
