@@ -510,3 +510,4 @@ gt_tbl <- gt(data_tables) %>%
     columns = c(Secular.characteristics, WhiteNoise.characteristics, Control.characteristics))
 
 gt_tbl
+
