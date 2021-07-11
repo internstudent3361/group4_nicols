@@ -266,3 +266,12 @@ lCI4i <- mean4i - (1.96*se4i) # lower 95% CI
 uCI4i <- mean4i + (1.96*se4i) #upper 95% CI
 ```
 
+Computing Cohen's d variable to measure effect size for each of the six variables across conditions:
+
+The formula for Cohen's d is as follows...
+![](Formula-for-Cohens-d.png)
+
+As such, the lines of code below calculate the effect size (Cohen's d) for each variable in the religious music condition in comparison with each variable in the other conditions. The abs() function was added to visualise all the effect sizes as absolute values, as done in the original table. Similarly to the other variables, the labels for the Cohen d effect sizes are labelled in the following manner: d standing for Cohen's d, the number referring to which effect comparison between conditions this variable is measuring (1 = relig vs sec, 2 
+= reglig vs noise, 3 = relig vs control), then the final letter represents which of the six variables is being measured (eg n for negativity).
+
+
