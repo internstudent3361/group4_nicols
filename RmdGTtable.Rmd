@@ -86,7 +86,7 @@ data_tables <- data.frame(Religious = table1,
                           Control = table4)
 ```
 
-Building upon that, we used the function gt(data_tables) to have R understand what data frame we wanted to use. By inputting the function tab_source_note(source_note = ...), we were able to place text at the bottom of the table, similar to the table. The function tab_spanner(label = ...,columns = c()) allowed us to place a label that spans across a certain amount of columns. This enabled us to label the columns that pertain to each group. 
+Building upon that, we used the function gt(data_tables) to have R understand what data frame we wanted to use. By inputting the function tab_source_note(source_note = ...), we were able to place text at the bottom of the table, similar to the original. The function tab_spanner(label = ...,columns = c()) allowed us to place a label that spans across a certain amount of columns. This enabled us to label the columns that pertain to each group. 
 
 ```{r eval=FALSE}
 print("Don't run me")
@@ -112,7 +112,7 @@ gt_tbl <- gt(data_tables) %>%
   )
 ```
 
-Moving on from this, we needed to name the columns appropriately with M, SD, lCI, uCI and d - similar to the original table. This was completed using the function cols_label, where the original name of the column is renamed using the speech marks ("").
+Moving on from this, we needed to name the columns appropriately with M, SD, lCI, uCI and d. This was completed using the function cols_label, where the original name of the column is overridden, and the words in the speech marks ("") set the new name.
 
 ```{r eval=FALSE}
 print("Don't run me")
@@ -143,7 +143,7 @@ cols_label(Religious.characteristics = NULL,
              Control.d = "d")
 ```
 
-We needed to ensure that all values were rounded to two decimal places. This was achieved using fmt_number on columns with numeric values. This was difficult for values that were marked with a "-" initially, as they were not originally calculated by the researchers. By coming back to the original table visualisation and changing the "-" into NA, the function fmt_number finally worked. This was applied to each column and use_seps was set to false as we did not want any digit group separators. The exact function is: fmt_number(columns = ..., decimals = 2, use_seps = FALSE).
+We needed to ensure that all values were rounded to two decimal places. This was achieved using fmt_number on columns with numeric values. This was difficult for values that were marked with a "-" initially, as they were not calculated by the researchers. By coming back to the original table visualisation and changing the "-" into NA, the function fmt_number finally worked. This was applied to each column and use_seps was set to false as we did not want any digit group separators. The exact function is: fmt_number(columns = ..., decimals = 2, use_seps = FALSE).
 
 ```{r eval=FALSE}
 print("Don't run me")
@@ -263,7 +263,7 @@ fmt_number(
   )
 ```
 
-Finally, the very last thing to do was hide columns that repeated the %%claimed, sacredness, negativity, positivity, tempo and impact characteristics. This was repeated as each group initially had their own separate table. This was achieved using the function cols_hide(columns = c(...)).
+Finally, the very last thing to do was hide columns that repeated the %%claimed, sacredness, negativity, positivity, tempo and impact characteristics. This occurred as each group initially had their own separate table. We achieved this by using the function cols_hide(columns = c(...)).
 
 ```{r eval=FALSE}
 print("Don't run me")
