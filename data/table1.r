@@ -286,8 +286,9 @@ d1i <- abs((mean4i-mean3i)/sqrt((sd4i^2+sd3i^2)/2))
 d2i <- abs((mean4i-mean2i)/sqrt((sd4i^2+sd2i^2)/2))
 
 
-# making the tables
-#Make religious table
+# Making the tables
+
+# Make religious table
 table1 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean4c, mean4s, mean4n, mean4p, mean4t, mean4i),
@@ -301,7 +302,7 @@ table1 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Religious") 
 
-#Make secular table
+# Make secular table
 table2 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean3c, mean3s, mean3n, mean3p, mean3t, mean3i),
@@ -315,7 +316,7 @@ table2 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Secular")
 
-#Make white noise table
+# Make white noise table
 table3 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean2c, mean2s, mean2n, mean2p, mean2t, mean2i),
@@ -329,7 +330,7 @@ table3 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "White Noise")
 
-#Make control group table
+# Make control group table
 table4 <- tibble(
   characteristics = c("% claimed", "Sacredness", "Negativity", "Positivity", "Tempo", "Impact"),
   M = c(mean1c, NA, NA, NA, NA, NA),
