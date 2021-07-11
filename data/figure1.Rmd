@@ -5,38 +5,32 @@ date: "04/07/2021"
 output: html_document
 ---
 
-mean values for dishonestly claimed earnings with 95% CIs - density plot
 
-claim percent by:
-data by condition: control, noise, secular, religious
-data by site: USA, Czech Rep., Japan
-
-## loading libraries
-
-```{r eval = FALSE}
-
+### loading libraries
+```{r}
 library(tidyverse)
-library(janitor)
-library(dplyr)
-library(ggplot2)
-library(ggdist) #used for first raincloud plot
+library(janitor) #used to read csv
+library(dplyr) #used for mutating variables
+library(ggplot2) #used to plot column
+library(ggdist) #used for raincloud plot
 
 ```
 
-## reading nichols et al csv
+## reading nichols csv
 
-```{r eval = FALSE}
+```{r}
 
-data1 <- read_csv("~/RFiles/nichols/group4_nicols/data/Nichols_et_al_data.csv")
+data1 <- read_csv("data/Nichols_et_al_data.csv")
 
 ```
 
-## cleaning data
+## cleaning up variables 
 
-The data was renamed so it would be easier to enter in R Script. Also only selected the important variables.
+We used the dplyr package to make the data much neater. Rename was used to clean up the variables to look more like the original. We also used filter and select to narrow down the variables we will be using for Fig 1. 
 
-```{r eval = FALSE}
+Claimpercent had to be mutated to become a percentage value, since they were in decimal place beforehand. Then, we used as_tibble to make the data easier to look at.
 
+```{r}
 data1 <- data1 %>%  
   filter(include == 0) %>% 
   rename(cond = con,
@@ -46,47 +40,67 @@ data1 <- data1 %>%
          CT_payments = `completion time (payments only)`,
          religiosity = relig,
          religion = Religion) %>% 
-  select(site, claimpercent, cond)
+  select(site, claimpercent, cond, id) %>% 
+  mutate(claimpercent = claimpercent * 100) %>% 
+  as_tibble()
 
 ```
 
-## graphing Fig 1 - data by condition
+## fig 1 - data by condition
+
+### rename each condition
+
+We had to create a new claimpercent variable so each condition had a mean value instead. As such, we had to rename each condition.
 
 ```{r}
 
-fig1_condition <- ggplot(data = data1) +
-  geom_col(aes(x = claimpercent, y = cond)) +
-  geom_area(aes(x = claimpercent, y = cond)) +
-  scale_x_continuous(
-    name = "Percent Claimed",
-    labels = c(0, 20, 40, 60, 80, 100),
-    breaks = c(0, 20, 40, 60, 80, 100)) +
-  scale_y_discrete(
-    name = NULL) +
-  ggtitle(label = "Data By Condition") 
+data1$cond[data1$cond==4] <- 0 # Make religious prime the reference category
+data1$cond[data1$cond==1] <- 4 # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
+data1$cond[data1$cond==3] <- 1 # we're changing the number twice which screws up our dataframe
+data1$cond[data1$cond==4] <- 3
 
 ```
 
-Need to name the conditions, and change claim percent so the numbers and labels line up. But, the bars seem right so far (except they are without the error bars).
+### mutating claimpercent
 
-Combining geom_area and geom_col did not get the result I wanted. I will have to try some other functions to see what works.
-
-### trying raincloud plot
+We used mutate from the dplyr package to create "claimpercent2", which would be the average value of each condition rather than all of the values.
 
 ```{r}
 
+data1 <- data1 %>% 
+  mutate(numberOf = (cond == 0) * 100 + (cond == 1 | cond == 2) * 103 + (cond == 3) * 102) %>% 
+  mutate(claimpercent2 = claimpercent / numberOf)
 
-fig1_condition_rp <- ggplot(data1, aes(x = cond, y = claimpercent)) +
+```
+
+### plotting fig 1 - data by condition
+
+We used the ggdist package for "stat_halfeye" to create the cloud parts of the graph, and we combined it with geom_col to get the bar underneath. We had to mess with the width so both could fit in the respective x axis. 
+
+"as.numeric(cond)+.5" was used to move the columns so they would fit with the cloud plot.
+
+In the ggdist::stat_halfeye section, adjust changed the height so we could leave room for the column. ".width" and "point_colour" were a part of the original cloud plot but we removed them since they are not in Fig 1.
+
+We used "coord_flip()" from ggplot2 to flip the graph to look like the original Figure 1. "ylab" was used to rename the y axis.
+
+```{r}
+
+fig1_condition_rp <- ggplot(data1, aes(x = cond)) +
   geom_col(
-    aes(x = as.numeric(cond)+.5),
+    aes(x = as.numeric(cond)+.5, y = claimpercent2),
     width = .3
   ) +
   ggdist::stat_halfeye(
+    aes(y = claimpercent),
     adjust = .5,
     width = .5,
     .width = 0,
     point_colour = NA
   ) +
-  coord_flip()
+  coord_flip(
+  ) +
+  ylab("Percent Claimed")
+
+plot(fig1_condition_rp)
 ```
 
