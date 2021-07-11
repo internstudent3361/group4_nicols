@@ -298,10 +298,6 @@ table1 <- tibble(
   d = c("-", "-", "-", "-", "-", "-")
 ) 
 
-gt(table1) %>% 
-  cols_label(characteristics = "Religious") %>% decimals = 2
-
-
 table1 %>% mutate_if(is.numeric, ~round(., 2)) %>%
   gt() %>%
   cols_label(characteristics = "Religious") 
@@ -514,5 +510,4 @@ gt_tbl <- gt(data_tables) %>%
   cols_hide(
     columns = c(Secular.characteristics, WhiteNoise.characteristics, Control.characteristics))
 
-gt_tbl[is.na(gt_tbl)]<-0 
-
+gt_tbl
