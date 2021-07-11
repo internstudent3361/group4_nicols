@@ -275,3 +275,5 @@ As such, the lines of code below calculate the effect size (Cohen's d) for each 
 = reglig vs noise, 3 = relig vs control), then the final letter represents which of the six variables is being measured (eg n for negativity).
 
 
+
+
