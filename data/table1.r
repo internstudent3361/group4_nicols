@@ -1,7 +1,6 @@
 # loading in libraries, including dplyr
 
 library(tidyverse)
-library(janitor)
 library(dplyr)
 library(gt)
 
