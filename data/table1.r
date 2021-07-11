@@ -373,7 +373,7 @@ gt_tbl <- gt(data_tables) %>%
     label = "Control (n = 100)",
     columns = c(Control.M, Control.SD, Control.lCI, Control.uCI, Control.d)
   ) %>%
-  cols_label(Religious.characteristics = "Characteristics", 
+  cols_label(Religious.characteristics = NULL, 
              Religious.M = "M",
              Religious.SD = "SD",
              Religious.lCI = "lCI",
@@ -484,7 +484,7 @@ gt_tbl <- gt(data_tables) %>%
   fmt_number(
     columns = Control.M,
     decimals = 2,
-    use_seps = FALSE
+    use_seps = FALSE,
   ) %>%
   
   fmt_number(
@@ -513,4 +513,6 @@ gt_tbl <- gt(data_tables) %>%
   
   cols_hide(
     columns = c(Secular.characteristics, WhiteNoise.characteristics, Control.characteristics))
-gt_tbl
+
+gt_tbl[is.na(gt_tbl)]<-0 
+
