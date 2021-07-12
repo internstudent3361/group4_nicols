@@ -30,6 +30,8 @@ We used the dplyr package to make the data much neater. Rename was used to clean
 
 Claimpercent had to be mutated to become a percentage value, since they were in decimal place beforehand. Then, we used as_tibble to make the data easier to look at.
 
+Originally had cond in select, but was told you cannot select a factor. Cond also changed to factor variable.
+
 ```{r}
 data1 <- data1 %>%  
   filter(include == 0) %>% 
@@ -40,7 +42,8 @@ data1 <- data1 %>%
          CT_payments = `completion time (payments only)`,
          religiosity = relig,
          religion = Religion) %>% 
-  select(site, claimpercent, cond, id) %>% 
+  data1$cond <- as.factor(data1$cond) %>% 
+  select(site, claimpercent, id) %>% 
   mutate(claimpercent = claimpercent * 100) %>% 
   as_tibble()
 
@@ -83,12 +86,15 @@ In the ggdist::stat_halfeye section, adjust changed the height so we could leave
 
 We used "coord_flip()" from ggplot2 to flip the graph to look like the original Figure 1. "ylab" was used to rename the y axis.
 
+Error seems to be telling me that I cannot nudge a factor?
+
 ```{r}
 
 fig1_condition_rp <- ggplot(data1, aes(x = cond)) +
   geom_col(
-    aes(x = as.numeric(cond)+.5, y = claimpercent2),
-    width = .3
+    aes(x = cond, y = claimpercent2),
+    width = .3,
+    position_nudge(x = .5)
   ) +
   ggdist::stat_halfeye(
     aes(y = claimpercent),
@@ -104,3 +110,9 @@ fig1_condition_rp <- ggplot(data1, aes(x = cond)) +
 plot(fig1_condition_rp)
 ```
 
+suggestions from jenny s:
+For the condition names, make sure the variable is a factor and try setting the "labels" of data1$cond before plotting. One option would be to check out  ?factor for more info.
+
+I've personally never used stat_halfeye but great job discovering this function. There's an argument "position" and a function position_nudge() that you should be able to add to geom_col() and possibly also to stat_halfeye() to reposition when the columns are
+
+hmm that's odd about ggplot not loading properly - perhaps try installing tidyverse again?
