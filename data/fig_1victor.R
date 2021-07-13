@@ -50,8 +50,16 @@ fig1 <- ggplot(data1, aes(x = cond)) +
   scale_x_continuous(expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0))
 
-
-  
-
-
 plot(fig1)
+
+# nice work with this plot!! it looks great so please don't feel like you have to make these changes, but here are a few ideas if you want to give them a go
+
+## 1. create a new tibble data1_summary that just has the summary stats 
+  # for example, aim to have 5 variables: cond, mean_claim, sd_claim, n (you can use n = n() ), and se (sd/sqrt(n))... (hint, you'll need to use group_by and summarise)
+  # this should give you a tibble with 5 columns and 4 rows (1 per condition)
+## 2. each layer of ggplot can have a unique dataset, so now for geom_col you can set data=data1_summary (I don't think this will be any different compared to what you have)
+  # I think you'll still have to convert cond to numeric and can adjust it's placement like this: geom_col(...aes(x=as.numeric(cond)-.25, y=mean)...)
+## 3. but now you can add in error bars because you have calculated the se
+
+## just as a side note, I found a function geom_flat_violin() PupillometryR package which does exactly what you have with stat_halfeye but potentially in 1 line of code 
+  # if you want to try geom_flat_violin(position = position_nudge(x=.1, y=0), adjust=2)
