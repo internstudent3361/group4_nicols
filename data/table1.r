@@ -369,7 +369,7 @@ gt_tbl <- gt(data_tables) %>%
     label = "Control (n = 100)",
     columns = c(Control.M, Control.SD, Control.lCI, Control.uCI, Control.d)
   ) %>%
-  cols_label(Religious.characteristics = NULL, 
+  cols_label(Religious.characteristics = "", 
              Religious.M = "M",
              Religious.SD = "SD",
              Religious.lCI = "lCI",
