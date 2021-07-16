@@ -20,7 +20,7 @@ library(ggdist) #used for raincloud plot
 
 ```{r}
 
-data1 <- read_csv("data/Nichols_et_al_data.csv")
+data1 <- read_csv("~/RFiles/nichols/group4_nicols/data/Nichols_et_al_data.csv")
 
 ```
 
@@ -42,7 +42,7 @@ data1 <- data1 %>%
          CT_payments = `completion time (payments only)`,
          religiosity = relig,
          religion = Religion) %>% 
-  data1$cond <- as.factor(data1$cond) %>% 
+  data1$cond <- as.double(data1$cond) %>% 
   select(site, claimpercent, id) %>% 
   mutate(claimpercent = claimpercent * 100) %>% 
   as_tibble()
@@ -78,15 +78,16 @@ data1 <- data1 %>%
 
 ### plotting fig 1 - data by condition
 
-We used the ggdist package for "stat_halfeye" to create the cloud parts of the graph, and we combined it with geom_col to get the bar underneath. We had to mess with the width so both could fit in the respective x axis. 
-
-"as.numeric(cond)+.5" was used to move the columns so they would fit with the cloud plot.
+We used the ggdist package for "stat_halfeye" to create the cloud parts of the graph, and we combined it with geom_col from ggplot2 to get the bar underneath. We had to mess with the width so both could fit in the respective x axis. 
 
 In the ggdist::stat_halfeye section, adjust changed the height so we could leave room for the column. ".width" and "point_colour" were a part of the original cloud plot but we removed them since they are not in Fig 1.
 
 We used "coord_flip()" from ggplot2 to flip the graph to look like the original Figure 1. "ylab" was used to rename the y axis.
 
-Error seems to be telling me that I cannot nudge a factor?
+"Expand limits" from ggplot2 ensured that limits included x = 0 and y = 0 to better fit with the original graph.
+
+Not sure what expand for scale_y_continuous and scale_x_continuous does.
+
 
 ```{r}
 
@@ -125,7 +126,7 @@ data1$site[data1$site==3] <- 2
 
 ```{r}
 data1 <- data1 %>% 
-  mutate(numberOf2 = (site == 0) * 143 + (site == 1) * 160 + (cond == 2) * 156) %>% 
+  mutate(numberOf2 = (site == 0) * 123 + (site == 1) * 127 + (cond == 2) * 156) %>% 
   mutate(claimpercent3 = claimpercent / numberOf2)
 ```
 
@@ -152,6 +153,10 @@ fig1_site <- ggplot(data1, aes(x = site)) +
   scale_y_continuous(expand = c(0,0))
 ```
 
+
+check code for sd and se
+upper = mean + se, lower = mean - se
+try functions if you want?
 
 suggestions from jenny s:
 For the condition names, make sure the variable is a factor and try setting the "labels" of data1$cond before plotting. One option would be to check out  ?factor for more info.
