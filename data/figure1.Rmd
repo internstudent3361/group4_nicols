@@ -5,7 +5,6 @@ date: "04/07/2021"
 output: html_document
 ---
 
-
 ### loading libraries
 ```{r}
 library(tidyverse)
@@ -42,7 +41,6 @@ data1 <- data1 %>%
          CT_payments = `completion time (payments only)`,
          religiosity = relig,
          religion = Religion) %>% 
-  data1$cond <- as.double(data1$cond) %>% 
   select(site, claimpercent, id) %>% 
   mutate(claimpercent = claimpercent * 100) %>% 
   as_tibble()
@@ -76,6 +74,36 @@ data1 <- data1 %>%
 
 ```
 
+### calculating error bars
+
+Created group_cond so geom_error (in the next chunk) can plot the error bar. group_by() from dplyr creates a tibble so we can summarise() (also from dplyr) to make a new data frame. 
+
+Calculated the mean with "mean = mean(claimpercent)" and na.rm = TRUE skips all NA values.
+
+n = n() assigns n the number of rows in the dataframe.
+
+Like na.rm = TRUE, drop_na() from tidyverse "drops" rows that contains missing values.
+
+Then we created two new variables, lowerCI and upperCI, by calculating se and then calculating lowerCI and upperCI.
+
+Then, we ungrouped the data frame.
+
+```{r}
+
+group_cond <- data1 %>% 
+  group_by(cond) %>% 
+  summarise(mean = mean(claimpercent, na.rm = TRUE),
+            sd = sd(claimpercent, na.rm = TRUE),
+            n = n()) %>% 
+  drop_na() %>% 
+  mutate(se = sd / sqrt(n),
+         lowerCI = mean - qt(1 - (0.05/2), n - 1) * se,
+         upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
+  ungroup()
+
+```
+
+
 ### plotting fig 1 - data by condition
 
 We used the ggdist package for "stat_halfeye" to create the cloud parts of the graph, and we combined it with geom_col from ggplot2 to get the bar underneath. We had to mess with the width so both could fit in the respective x axis. 
@@ -84,30 +112,43 @@ In the ggdist::stat_halfeye section, adjust changed the height so we could leave
 
 We used "coord_flip()" from ggplot2 to flip the graph to look like the original Figure 1. "ylab" was used to rename the y axis.
 
+Used geom_errorbar() from ggplot2 to plot the error bars, using the SE and assigning the lower and upper CI from the previous chunk. I adjusted the width to fit the columns.
+
 "Expand limits" from ggplot2 ensured that limits included x = 0 and y = 0 to better fit with the original graph.
 
-Not sure what expand for scale_y_continuous and scale_x_continuous does.
+Not sure what expand for scale_y_continuous and scale_x_continuous does. Used label to name each value, and used break so labels and breaks were the same length. "name = NULL" removed the x axis label, like the original figure, and "name = "Percent Claimed"" relabeled the y axis.
 
 
 ```{r}
 
 fig1_cond <- ggplot(data1, aes(x = cond)) +
   geom_col(
-    aes(y = claimpercent2),
+    aes(y = claimpercent2, fill = cond),
     width = .3
   ) +
   ggdist::stat_halfeye(
-    aes(y = claimpercent),
+    aes(y = claimpercent, fill = cond),
     adjust = .5,
     width = .4,
     .width = 0,
     point_colour = NA,
     position = position_nudge(x = 0.17, y = 0)
   ) +
+  geom_errorbar(data = group_cond,
+                aes(ymin = lowerCI, ymax = upperCI),
+                width = .3
+  ) +
   coord_flip() +
   expand_limits(x = 0, y = 0) +
-  scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0))
+  scale_x_continuous(name = NULL,
+                     expand = c(0,0), 
+                     breaks = c(0, 1, 2, 3),
+                     labels = c("Control","Noise","Secular","Religious")) +
+  scale_y_continuous(name = "Percent Claimed",
+                     expand = c(0,0)) +
+  scale_fill_viridis_c(
+    alpha = .5,
+    name = NULL)
 
 ```
 
