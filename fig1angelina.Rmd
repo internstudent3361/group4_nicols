@@ -119,6 +119,8 @@ group_cond <- data1 %>%
          upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
   ungroup()
 
+group_cond$cond <- as.factor(group_cond$cond)
+
 # data by site
 
 group_site <- data1 %>% 
