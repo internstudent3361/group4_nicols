@@ -57,8 +57,7 @@ We had to create a new claimpercent variable so each condition had a mean value 
 
 # data by condition
 
-data1 <- data1 %>% 
-  mutate(as.factor(cond))
+data1$cond <- as.factor(data1$cond)
 
 data1$cond[data1$cond==4] <- "Religious" # Make religious prime the reference category
 data1$cond[data1$cond==1] <- "Control" # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
@@ -157,22 +156,16 @@ theme_classic created a white background for the graph (instead of grids).
 
 ggtitle() from ggplot2 was used to create the "A." title in the corner of the graph, and facet_grid() allowed us to put the title "Data by _____" in its own box, like in the original.
 
-<<<<<<< HEAD
-
-```{r eval=TRUE}
-=======
 **** Jenny comments ****
 tips for getting your colors to work:
 - make sure both data1$cond and group_cond$cond are factors (e.g. data1$cond <- factor(data1$cond, labels = c("Control","Noise","Secular","Religious")) ) 
 - make sure this is set before you call your ggplot
 - I'm not sure what scale_x_continuous is doing here, but if you change these two variables to factors, I don't think you'll need these this function anymore
-```{r}
->>>>>>> 82ce9bdd29c2dc4fe4411811c69dcb0257cec6ca
-# data by condition
-
 # change the two variables to factors here:
 
+```{r eval=TRUE}
 
+# data by condition
 
 fig1_cond <- ggplot(data1, aes(x = cond)) +
   geom_col(
@@ -192,23 +185,11 @@ fig1_cond <- ggplot(data1, aes(x = cond)) +
                 width = .3) +
   coord_flip() +
   expand_limits(x = 0, y = 0) +
-<<<<<<< HEAD
   scale_x_discrete(expand = c(0,0),
                    breaks = c(0, 1, 2, 3),
                    name = NULL) +
   scale_y_discrete(expand = c(0,0),
                    name = "Percent Claimed") +
-=======
-  scale_x_continuous(name = NULL, ## I think you should be able to delete or comment these lines (188-192) out
-                     expand = c(0,0),
-                     breaks = c(0, 1, 2, 3),
-                     labels = c("Control","Noise","Secular","Religious")
-  ) +
-  scale_y_continuous(name = "Percent Claimed",
-                     expand = c(0,0),
-                     breaks = c(0, 20, 40, 60, 80, 100)
-                     ) +
->>>>>>> 82ce9bdd29c2dc4fe4411811c69dcb0257cec6ca
   ggtitle(
     label = "Data by condition"
   ) +
