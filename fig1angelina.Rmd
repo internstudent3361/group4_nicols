@@ -155,9 +155,17 @@ theme_classic created a white background for the graph (instead of grids).
 
 ggtitle() from ggplot2 was used to create the "A." title in the corner of the graph, and facet_grid() allowed us to put the title "Data by _____" in its own box, like in the original.
 
-
+**** Jenny comments ****
+tips for getting your colors to work:
+- make sure both data1$cond and group_cond$cond are factors (e.g. data1$cond <- factor(data1$cond, labels = c("Control","Noise","Secular","Religious")) ) 
+- make sure this is set before you call your ggplot
+- I'm not sure what scale_x_continuous is doing here, but if you change these two variables to factors, I don't think you'll need these this function anymore
 ```{r}
 # data by condition
+
+# change the two variables to factors here:
+
+
 
 fig1_cond <- ggplot(data1, aes(x = cond)) +
   geom_col(
@@ -177,7 +185,7 @@ fig1_cond <- ggplot(data1, aes(x = cond)) +
                 width = .3) +
   coord_flip() +
   expand_limits(x = 0, y = 0) +
-  scale_x_continuous(name = NULL,
+  scale_x_continuous(name = NULL, ## I think you should be able to delete or comment these lines (188-192) out
                      expand = c(0,0),
                      breaks = c(0, 1, 2, 3),
                      labels = c("Control","Noise","Secular","Religious")
