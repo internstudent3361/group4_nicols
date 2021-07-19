@@ -2,15 +2,12 @@
 title: "figure1_angelina"
 author: "Angelina Lim"
 date: "17/07/2021"
-output:
-  html_document: default
-  pdf_document: default
+output: html_document
 ---
 
-keep where calculating numberOf and labelling tgt
 
 ### loading libraries
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 library(tidyverse)
 library(janitor) #used to read csv
@@ -22,7 +19,7 @@ library(gridExtra) #combines both plots
 
 ## reading nichols csv
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 data1 <- read_csv("~/RFiles/nichols/group4_nicols/data/Nichols_et_al_data.csv")
 
@@ -36,7 +33,7 @@ Claimpercent had to be mutated to become a percentage value, since they were in 
 
 Originally had cond in select, but was told you cannot select a factor. Cond also changed to factor variable.
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 data1 <- data1 %>%  
   filter(include == 0) %>% 
   rename(cond = con,
@@ -56,13 +53,18 @@ data1 <- data1 %>%
 
 We had to create a new claimpercent variable so each condition had a mean value instead. As such, we had to rename each condition.
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 # data by condition
-data1$cond[data1$cond==4] <- 0 # Make religious prime the reference category
-data1$cond[data1$cond==1] <- 4 # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
-data1$cond[data1$cond==3] <- 1 # we're changing the number twice which screws up our dataframe
-data1$cond[data1$cond==4] <- 3
+
+data1 <- data1 %>% 
+  mutate(as.factor(cond))
+
+data1$cond[data1$cond==4] <- "Religious" # Make religious prime the reference category
+data1$cond[data1$cond==1] <- "Control" # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
+data1$cond[data1$cond==3] <- "Secular" # we're changing the number twice which screws up our dataframe
+data1$cond[data1$cond==4] <- "Religious"
+data1$cond[data1$cond==2] <- "Noise"
 
 # data by site
 
@@ -76,12 +78,12 @@ data1$site[data1$site==3] <- 1
 
 We used mutate from the dplyr package to create "claimpercent2", which would be the average value of each condition rather than all of the values.
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 # data by condition
 
 data1 <- data1 %>% 
-  mutate(numberOf = (cond == 0) * 100 + (cond == 1 | cond == 2) * 103 + (cond == 3) * 102) %>% 
+  mutate(numberOf = (cond == "Religious") * 100 + (cond == "Secular" | cond == "Noise") * 103 + (cond == "Control") * 102) %>% 
   mutate(claimpercent2 = claimpercent / numberOf)
 
 # data by site
@@ -106,7 +108,7 @@ Then we created two new variables, lowerCI and upperCI, by calculating se and th
 
 Then, we ungrouped the data frame.
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 # data by condition
 
@@ -156,7 +158,7 @@ theme_classic created a white background for the graph (instead of grids).
 ggtitle() from ggplot2 was used to create the "A." title in the corner of the graph, and facet_grid() allowed us to put the title "Data by _____" in its own box, like in the original.
 
 
-```{r}
+```{r eval=TRUE}
 # data by condition
 
 fig1_cond <- ggplot(data1, aes(x = cond)) +
@@ -177,25 +179,24 @@ fig1_cond <- ggplot(data1, aes(x = cond)) +
                 width = .3) +
   coord_flip() +
   expand_limits(x = 0, y = 0) +
-  scale_x_continuous(name = NULL,
-                     expand = c(0,0),
-                     breaks = c(0, 1, 2, 3),
-                     labels = c("Control","Noise","Secular","Religious")
-  ) +
-  scale_y_continuous(name = "Percent Claimed",
-                     expand = c(0,0),
-                     breaks = c(0, 20, 40, 60, 80, 100)
-                     ) +
+  scale_x_discrete(expand = c(0,0),
+                   breaks = c(0, 1, 2, 3),
+                   name = NULL) +
+  scale_y_discrete(expand = c(0,0),
+                   name = "Percent Claimed") +
   ggtitle(
     label = "Data by condition"
   ) +
   theme_classic() +
+  theme(legend.position = "none") +
   ggtitle(label = "A.") +
-  facet_grid(. ~ "Data by condition") 
+  facet_grid(. ~ "Data by condition")
+
+plot(fig1_cond)
 
 ```
 
-```{r}
+```{r eval=TRUE}
 # data by site
 
 fig1_site <- ggplot(data1, aes(x = site)) +
@@ -231,11 +232,14 @@ fig1_site <- ggplot(data1, aes(x = site)) +
     label = "B.") +
   facet_grid(. ~ "Data by site") 
 
+plot(fig1_site)
+
 ```
 
 
 ### combining fig1_cond and fig1_site
-```{r}
+```{r eval=TRUE}
 
 grid.arrange(fig1_cond, fig1_site, ncol = 2)
 
+```
