@@ -40,7 +40,7 @@ data1 <- data1 %>%
 ```
 
 So, now that the data was tidied, we needed to create new variables as seen in table 1: negativity, positivty, tempo and impact (% claimed and sacredness variables already existed in the raw data set). We consulted the codebook on OSF to find out what exactly these variables were, what they measured and how they were calculated. They all turned out to be averages of variables already existing in the data, serving as a summary of a group of variables.
-## question here: WHY is slow -7 and not -6? it's measured on a five point scale?
+Interestingly, however, this was not made clear within the paper, and upon reading the paper for the first few times we were quite confused as to where these four variables came from, what they meant and how they were calculated. It could be argued that figures within published papers should not include unexplained measurements that require one to delve deep into computer code to understand them. Beyond this, the computer code itself is rather vague with many statements like "as per Lang et al paper", requiring us to go to the Lang et al paper and find their datasets and calculations. For example, we are still unsure as to why the slow variable is reverse coded using -7 not -6 to create the new tempo variable, and this question is likely only to be answered if we are to contact the original authors themselves. When we talk about open data, open science and reproducibility, we wish to avoid issues such as these.
 
 ```{r}
 data1 <- data1 %>% 
@@ -78,15 +78,22 @@ So, we consulted the codebook again, which did prove to be helpful despite being
 
 Before we dive into how each descriptive value was calculated, we first want to explain how each value was LABELLED. Each new value was labelled as such: descriptive.conditionnumber.variable, where the control group is (1), white noise group is (2), secular music group is (3), and religious music group is (4). So, lets take 'sd3s' as an example. This is the standard deviation (sd) of the sacredness variable (s) in the secular music group (3). Or, for example, 'mean2i' is the mean of the impact variable (i) for the white noise group (2).
 
-So, how did we compute each descriptive?
+So, to demonstrate how we computed each descriptive for each variable across all the groups, I will use the percent claimed variable and control group (ie group 1) as an example...
+First, we obtained the mean, simply using the 'mean' function, with the code within the brackets specifying that we want the mean of all values within in the control group [data$cond=="1"], for the percent claimed variable (claimpercent), which included some NA values with must be discounted, thus (na.rm = TRUE) We multiplied this value by 100 (*100) because it shows in the original data as a decimal place but in the table as a percentage. This command converts the value to a percentage so it can be used in the table, but note that we only did this for the percent claimed variable, because it was the only one that required this conversion from the original data.
+Then, we found the SD for all the percent claimed values in the control group, using very similar code for the mean to specify which exact values we wanted the SD to be calculated from, but this time of course using the sd function. Again, we multiplied this value by 100 using (*100).
+The next descriptive in the table from the original paper is a confidence interval which requires a measurement of standard error which requires us to calculate n (number of responses in the control group for the percent claimed variable). To do this, the original paper used the length() function, which gets the length of a vector (in this case the list of responses in the control group), but the n() function could also have been used. The !is.na removed NA values from this calculation.
+# WHAT is the difference between na.rm and !is.na?
+Then, to calculate standard error, which we need to calculate the upper and lower CIs, we took the sd value that we just calculated above and divided that by the square root (sqrt) of n (also just calculated above).
+Now that we had the standard error measure, we could plug that into the formula for out upper and lower 95% confidence interval limits.
+Thus, we obtained descriptives (mean, SD, CIs) for each variable across each group.
 
 ```{r}
 # Percent claimed variable
 
 # Control Group (1)
 
-mean1c <- mean(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # mean
-sd1c <- sd(data1$claimpercent[data1$cond=="1"], na.rm = TRUE) # SD
+mean1c <- mean(data1$claimpercent[data1$cond=="1"], na.rm = TRUE)*100 # mean
+sd1c <- sd(data1$claimpercent[data1$cond=="1"], na.rm = TRUE)*100 # SD
 n1c <- length(data1$cond[data1$cond=="1" & !is.na(data1$cond)]) # number of responses
 se1c <- sd1c/sqrt(n1c) # standard error
 lCI1c <- mean1c - (1.96*se1c) # lower 95% CI
@@ -94,8 +101,8 @@ uCI1c <- mean1c + (1.96*se1c) # upper 95% CI
 
 # White Noise Group (2)
 
-mean2c <- mean(data1$claimpercent[data1$cond=="2"], na.rm = TRUE) # mean
-sd2c <- sd(data1$claimpercent[data1$cond=="2"], na.rm = TRUE) # SD
+mean2c <- mean(data1$claimpercent[data1$cond=="2"], na.rm = TRUE)*100 # mean
+sd2c <- sd(data1$claimpercent[data1$cond=="2"], na.rm = TRUE)*100 # SD
 n2c <- length(data1$cond[data1$cond=="2" & !is.na(data1$cond)]) # number of responses
 se2c <- sd2c/sqrt(n2c) # standard error
 lCI2c <- mean2c - (1.96*se2c) # lower 95% CI
@@ -103,8 +110,8 @@ uCI2c <- mean2c + (1.96*se2c) #upper 95% CI
 
 # Secular Group (3)
 
-mean3c <- mean(data1$claimpercent[data1$cond=="3"], na.rm = TRUE) # mean
-sd3c <- sd(data1$claimpercent[data1$cond=="3"], na.rm = TRUE) # SD
+mean3c <- mean(data1$claimpercent[data1$cond=="3"], na.rm = TRUE)*100 # mean
+sd3c <- sd(data1$claimpercent[data1$cond=="3"], na.rm = TRUE)*100 # SD
 n3c <- length(data1$cond[data1$cond=="3" & !is.na(data1$cond)]) # number of responses
 se3c <- sd3c/sqrt(n3c) # standard error
 lCI3c <- mean3c - (1.96*se3c) # lower 95% CI
@@ -112,8 +119,8 @@ uCI3c <- mean3c + (1.96*se3c) #upper 95% CI
 
 # Religious Group (4)
 
-mean4c <- mean(data1$claimpercent[data1$cond=="4"], na.rm = TRUE) # mean
-sd4c <- sd(data1$claimpercent[data1$cond=="4"], na.rm = TRUE) # SD
+mean4c <- mean(data1$claimpercent[data1$cond=="4"], na.rm = TRUE)*100 # mean
+sd4c <- sd(data1$claimpercent[data1$cond=="4"], na.rm = TRUE)*100 # SD
 n4c <- length(data1$cond[data1$cond=="4" & !is.na(data1$cond)]) # number of responses
 se4c <- sd4c/sqrt(n4c) # standard error
 lCI4c <- mean4c - (1.96*se4c) # lower 95% CI
@@ -266,12 +273,64 @@ lCI4i <- mean4i - (1.96*se4i) # lower 95% CI
 uCI4i <- mean4i + (1.96*se4i) #upper 95% CI
 ```
 
-Computing Cohen's d variable to measure effect size for each of the six variables across conditions:
+The last descriptive measurement in Table 1 was the Cohen's d variable, measuring the effect size for each of the six variables across conditions, in comparison to the religious condition. We calculated it as such...
 
 The formula for Cohen's d is as follows...
 ![](Formula-for-Cohens-d.png)
 
 As such, the lines of code below calculate the effect size (Cohen's d) for each variable in the religious music condition in comparison with each variable in the other conditions. The abs() function was added to visualise all the effect sizes as absolute values, as done in the original table. Similarly to the other variables, the labels for the Cohen d effect sizes are labelled in the following manner: d standing for Cohen's d, the number referring to which effect comparison between conditions this variable is measuring (1 = relig vs sec, 2 
 = reglig vs noise, 3 = relig vs control), then the final letter represents which of the six variables is being measured (eg n for negativity).
+
+```{r}
+# computing Cohen's d
+
+# % claimed
+
+#relig vs sec
+d1c <- abs((mean4c-mean3c)/sqrt((sd4c^2+sd3c^2)/2))
+#relig vs noise
+d2c <- abs((mean4c-mean2c)/sqrt((sd4c^2+sd2c^2)/2))
+#relig vs control
+d3c <- abs((mean4c-mean1c)/sqrt((sd4c^2+sd1c^2)/2))
+
+# sacredness
+
+#relig vs sec
+d1s <- abs((mean4s-mean3s)/sqrt((sd4s^2+sd3s^2)/2))
+#relig vs noise
+d2s <- abs((mean4s-mean2s)/sqrt((sd4s^2+sd2s^2)/2))
+
+# negativity
+
+#relig vs sec
+d1n <- abs((mean4n-mean3n)/sqrt((sd4n^2+sd3n^2)/2))
+#relig vs noise
+d2n <- abs((mean4n-mean2n)/sqrt((sd4n^2+sd2n^2)/2))
+
+# positivity
+
+#relig vs sec
+d1p <- abs((mean4p-mean3p)/sqrt((sd4p^2+sd3p^2)/2))
+#relig vs noise
+d2p <- abs((mean4p-mean2p)/sqrt((sd4p^2+sd2p^2)/2))
+
+# tempo
+
+#relig vs sec
+d1t <- abs((mean4t-mean3t)/sqrt((sd4t^2+sd3t^2)/2))
+#relig vs noise
+d2t <- abs((mean4t-mean2t)/sqrt((sd4t^2+sd2t^2)/2))
+
+# impact
+
+#relig vs sec
+d1i <- abs((mean4i-mean3i)/sqrt((sd4i^2+sd3i^2)/2))
+#relig vs noise
+d2i <- abs((mean4i-mean2i)/sqrt((sd4i^2+sd2i^2)/2))
+
+```
+
+
+
 
 
