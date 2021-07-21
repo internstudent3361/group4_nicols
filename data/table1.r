@@ -392,119 +392,12 @@ gt_tbl <- gt(data_tables) %>%
              Control.lCI = "lCI",
              Control.uCI = "uCI",
              Control.d = "d") %>%
+  
   fmt_number(
-    columns = Religious.M,
+    columns = vars(Religious.M, Religious.SD, Religious.lCI, Religious.uCI, Secular.M, Secular.SD, Secular.lCI, Secular.uCI, Secular.d, WhiteNoise.M, WhiteNoise.SD, WhiteNoise.lCI, WhiteNoise.uCI, WhiteNoise.d, Control.M, Control.SD, Control.lCI, Control.uCI, Control.d),
     decimals = 2,
     use_seps = FALSE
   ) %>% 
-
-  fmt_number(
-    columns = Religious.SD,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = Religious.lCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = Religious.uCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = Secular.M,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = Secular.SD,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = Secular.lCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = Secular.uCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = Secular.d,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = WhiteNoise.M,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = WhiteNoise.SD,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = WhiteNoise.lCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>% 
-  
-  fmt_number(
-    columns = WhiteNoise.uCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>%
-  
-  fmt_number(
-    columns = WhiteNoise.d,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>%
-  
-  fmt_number(
-    columns = Control.M,
-    decimals = 2,
-    use_seps = FALSE,
-  ) %>%
-  
-  fmt_number(
-    columns =  Control.SD,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>%
-  
-  fmt_number(
-    columns = Control.lCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>%
-  
-  fmt_number(
-    columns = Control.uCI,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>%
-  
-  fmt_number(
-    columns = Control.d,
-    decimals = 2,
-    use_seps = FALSE
-  ) %>%
   
   cols_hide(
     columns = c(Secular.characteristics, WhiteNoise.characteristics, Control.characteristics))
