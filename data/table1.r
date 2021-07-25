@@ -395,7 +395,7 @@ gt_tbl <- gt(data_tables) %>%
              Control.d = "d") %>%
   
   fmt_number(
-    columns = vars(Religious.M, Religious.SD, Religious.lCI, Religious.uCI, Secular.M, Secular.SD, Secular.lCI, Secular.uCI, Secular.d, WhiteNoise.M, WhiteNoise.SD, WhiteNoise.lCI, WhiteNoise.uCI, WhiteNoise.d, Control.M, Control.SD, Control.lCI, Control.uCI, Control.d),
+    columns = c(Religious.M, Religious.SD, Religious.lCI, Religious.uCI, Secular.M, Secular.SD, Secular.lCI, Secular.uCI, Secular.d, WhiteNoise.M, WhiteNoise.SD, WhiteNoise.lCI, WhiteNoise.uCI, WhiteNoise.d, Control.M, Control.SD, Control.lCI, Control.uCI, Control.d),
     decimals = 2,
     use_seps = FALSE
   ) %>% 
@@ -403,5 +403,7 @@ gt_tbl <- gt(data_tables) %>%
   cols_hide(
     columns = c(Secular.characteristics, WhiteNoise.characteristics, Control.characteristics))
 
-gt_tbl
-
+gt_tbl %>% fmt_missing(
+  columns = everything(),
+  missing_text = "-"
+)
