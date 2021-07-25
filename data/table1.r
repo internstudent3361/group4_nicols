@@ -512,3 +512,4 @@ gt_tbl <- gt(data_tables) %>%
 
 gt_tbl
 
+
