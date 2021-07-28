@@ -74,10 +74,9 @@ figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
   geom_smooth(method = "lm", se = FALSE, size = 1.5) + #method = "lm" creates a straight line of best fit
   geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") + #this creates the SE for the religious condition
   theme_light() + #Gives white background to plot
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + #Removes gridlines from plot
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none") + #Removes gridlines from plot, removes legend
   coord_cartesian(ylim = c(0, 50)) + #Sets y limit to 50
   labs(x = "Religiosity", y = "Percentage claimed") + #axis labels 
-  theme(legend.position = "none") +  #removes legend
   facet_grid(. ~ "Condition*Religiosity") + # title, we use facet_grid to put it in a grey box
   scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4")) #change the colours of the lines to fit source
 
@@ -85,10 +84,9 @@ figB <- ggplot(dataA, aes(ritual, claimpercent, color = cond)) +
   geom_smooth(method = "lm", se = FALSE, size = 1.5) +
   geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") +
   theme_light() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none") +
   coord_cartesian(ylim = c(0, 50)) +
-  labs(x = "Ritual frequency", y = "Percentage claimed") +
-  theme(legend.position = "none") +
+  labs(x = "Ritual frequency", y = "Percentage claimed") ++
   facet_grid(. ~ "Condition*Ritual frequency") +
   scale_x_continuous(breaks = seq(0, 6, 1)) +  #adjusting the tick marks so 7 marks appear
   scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))

@@ -1,0 +1,147 @@
+---
+title: "Figure 2 report"
+author: "Victor Bian"
+date: "7/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE)
+```
+
+The first part of Figure 2 was to import the data, and to clean it up for use. We renamed the variables according to the codebook we had made at the start of the project, and only included participants who did not meet the exclusion criteria by using filter(include == 0). After working on the code for a while we realized we would need to reverse code some variables, namely religiosity and ritual. The abs() function takes the absolute value of the equation inside. We then selected only the variables we needed to reproduce the plot and turned it into a data frame to make it easier to manipulate.
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(gridExtra)
+library(gmodels)
+
+
+
+data1 <- read.csv("data/Nichols_et_al_data.csv")
+
+
+#Cleaning up the data for use
+
+dataA <- data1 %>%                                                          
+  filter(include == 0) %>% 
+  
+  rename(cond = con,
+         claimpercent = claim,
+         claimmoney = moneyclaim,
+         CT_practice = completion.time..practice.included.,
+         CT_payments = completion.time..payments.only.,
+         religiosity = relig,
+         religion = Religion) %>% 
+  
+  mutate(religiosity = abs(religiosity - 5),
+         ritual = abs(ritual - 7),              # reverse coding
+         claimpercent = claimpercent * 100,     #turning this into a percentage value
+         affil = as.factor(affil_cong)) %>%      
+         
+  
+  select(cond:ritual, -claimmoney, -sex, -age, -Religion.Text, -religion, -starts_with("CT")) %>% # selecting only the columns required
+  
+  as_data_frame() 
+```
+
+This next piece of code was required in order to code the variables according to the paper. At first we were confused as to how they had reordered the conditions. Why did they reorder cond==4 twice? And why did they not reorder cond==2? After playing around with the code, we realized that r read the code line by line, so if we changed cond==1 to 3, then on the next line it would be changed straight back to 1. Furthermore, cond==2 did not need to be changed as it remained the same no matter what order it was. We then relabelled each factor according to the paper. Here, we also learnt how to use the $ operator to select specific variables within our objects. 
+
+```{r}
+# Re-order conditions to: religous, secular, noise, and control
+
+dataA$cond[dataA$cond==4] <- 0 # Make religious prime the reference category
+dataA$cond[dataA$cond==1] <- 4 # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
+dataA$cond[dataA$cond==3] <- 1 # we're changing the number twice which screws up our dataframe
+dataA$cond[dataA$cond==4] <- 3
+
+
+# labelling the levels of the treatment variable
+
+dataA$cond <- factor(dataA$cond, levels= c(0,1,2,3),
+                labels = c("Religious", "Secular", "Noise","Control"))
+```
+
+The next piece of code creates an object that takes the data of all participants from dataA who are in the religious condition. This was done in order to plot the SE line in the first 2 plots, as the SE line only appears for the religious condition.
+
+```{r}
+dataB <- dataA %>% 
+  filter(cond == "Religious")
+```
+
+In order to plot the 3rd figure, we needed to figure out the CI limits for all conditions, based on whether they were religiously affiliated or not. In order to create a dataframe that grouped these variables together, we needed to create a grouped table using group_by(). From there, we calculated the mean, sd, and number of participants in each of our grouped variables, and then applied a formula to calculate the lower and upper CI limits. We then relabelled each of the factor levels to either "Non-affiliated" or "Affiliated". We also found that many of the participants did not have a value for the affil variable. In order to filter these participants out, we used drop_na() function from they tidyr package to remove any rows with an NA value. 
+
+```{r}
+#Make a new dataframe that contains CI limits for all conditions based on whether participants are religiously affiliated or not
+
+groupA <- dataA %>% 
+  group_by(cond, affil) %>% 
+  summarise(mean = mean(claimpercent, na.rm = TRUE),
+            sd = sd(claimpercent, na.rm = TRUE),
+            n = n()) %>% 
+  drop_na() %>% 
+  mutate(se = sd / sqrt(n),
+         lowerCI = mean - qt(1 - (0.05/2), n - 1) * se,
+         upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
+  ungroup()
+  
+# labelling the levels of religious affiliation 
+
+groupA$affil <- factor(groupA$affil, levels = c(0, 1), 
+                       labels = c("Non-affiliated", "Affiliated"))
+```
+
+Figuring out how to code the plots took a bit of time. The first thing to figure out was how to get 4 lines to appear, as attempts to use geom_smooth() failed at first. We figured out that we needed to turn the cond variable into a factor variable, rather than a numeric variable. This enabled 4 lines to appear. After that, the next thing to figure out was how to get the y limits to reach 50. When we tried using the ylim() function, the lines changed completely. After reviewing the documentation, we figured out that ylim() and other similar functions simply zoomed in or out of the graph, which caused data points to disappear when using geom_smooth. We found a function, coord_cartesian() that allowed us to set limits without losing any data points. We then used functions such as labs(), theme_light(), theme(), and scale_color_manual to change the graph to look similar to the paper. The last thing to figure out was how to put the title into a grey box. This grey box typically only appears in graphs that have used the facet function which is typically used with multiple graphs, so we just used the facet_grid() function on one table at a time in order to get the grey box to appear. 
+
+```{r}
+
+figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
+  geom_smooth(method = "lm", se = FALSE, size = 1.5) + #method = "lm" creates a straight line of best fit
+  geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") + #this creates the SE for the religious condition
+  theme_light() + #Gives white background to plot
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none") + #Removes gridlines from plot, removes legend
+  coord_cartesian(ylim = c(0, 50)) + #Sets y limit to 50
+  labs(x = "Religiosity", y = "Percentage claimed") + #axis labels 
+  facet_grid(. ~ "Condition*Religiosity") + # title, we use facet_grid to put it in a grey box
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4")) #change the colours of the lines to fit source
+
+```
+
+The second plot was mostly identical to the first plot. Note that with the first two plots we used 2 geom_smooth() as one of the geom_smooth() was simply to plot the SE line (using se = TRUE) for the religious condition.
+
+```{r}
+figB <- ggplot(dataA, aes(ritual, claimpercent, color = cond)) +
+  geom_smooth(method = "lm", se = FALSE, size = 1.5) +
+  geom_smooth(data = dataB, size = 0, se = TRUE, method = "lm", fill = "#fbf1d8") +
+  theme_light() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none") +
+  coord_cartesian(ylim = c(0, 50)) +
+  labs(x = "Ritual frequency", y = "Percentage claimed") ++
+  facet_grid(. ~ "Condition*Ritual frequency") +
+  scale_x_continuous(breaks = seq(0, 6, 1)) +  #adjusting the tick marks so 7 marks appear
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
+```
+
+The third plot took the most time to figure out. This was in part due to needing to plot the CI limits, which was explained above. The next biggest issue was figuring out how to use geom_line(). Our initial attempts to use geom_line() failed to produce any lines. After scouring the geom_line() documentation, we realized that we needed to use the group argument in order to tell geom_line() what it was plotting. This took a while to figure out as the documentation used the argument (group = group) in their example which did not make much sense at first, as they were grouping the variable "group". The next thing to figure out was how to get the geoms to not overlap over each other. After some research, we found the function position_dodge, which moved each line by a set distance in order to stop them from overlapping. 
+
+```{r}
+figC <- ggplot(groupA, aes(affil, mean, color = cond)) +
+  geom_line(aes(group = cond), position = position_dodge(width = 0.5), size = 1.5) + #group our lines by condition, we use position dodge so nothing overlaps
+  geom_errorbar(data = groupA, aes(ymin = lowerCI, ymax = upperCI), width = 0.2, position = position_dodge(width = 0.5), size = 1.3) +
+  theme_light() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  ylim(0, 50) +
+  scale_x_discrete() +
+  labs(x = "Religious affiliation", y = "Percentage claimed") +
+  facet_grid(. ~ "Condition*Religious affiliation") +
+  scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
+```
+
+The first part of the figure that we knew would be a bit difficult was how to display 3 graphs at once. This was due to the fact that facet would not work for us as we were using different variables in each plot. After some research, we came across the gridExtra package which came with the function grid.arrange() which allowed us to plot 3 graphs side by side.
+
+```{r}
+grid.arrange(figA, figB, figC, ncol = 3)
+```
+
+
