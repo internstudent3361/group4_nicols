@@ -1,6 +1,6 @@
 ---
 title: "table1rmd"
-author: "Samuel Jones"
+author: "Samuel Jones & Jessica Le"
 date: "10/07/2021"
 output: html_document
 ---
