@@ -1,0 +1,207 @@
+---
+title: "figure1.Rmd"
+author: "Angelina Lim"
+date: "04/07/2021"
+output: html_document
+---
+
+### loading libraries
+```{r}
+library(tidyverse)
+library(janitor) #used to read csv
+library(dplyr) #used for mutating variables
+library(ggplot2) #used to plot column
+library(ggdist) #used for raincloud plot
+
+```
+
+## reading nichols csv
+
+```{r}
+
+data1 <- read_csv("~/RFiles/nichols/group4_nicols/data/Nichols_et_al_data.csv")
+
+```
+
+## cleaning up variables 
+
+We used the dplyr package to make the data much neater. Rename was used to clean up the variables to look more like the original. We also used filter and select to narrow down the variables we will be using for Fig 1. 
+
+Claimpercent had to be mutated to become a percentage value, since they were in decimal place beforehand. Then, we used as_tibble to make the data easier to look at.
+
+Originally had cond in select, but was told you cannot select a factor. Cond also changed to factor variable.
+
+```{r}
+data1 <- data1 %>%  
+  filter(include == 0) %>% 
+  rename(cond = con,
+         claimpercent = claim,
+         claimmoney = moneyclaim,
+         CT_practice = `completion time (practice included)`,
+         CT_payments = `completion time (payments only)`,
+         religiosity = relig,
+         religion = Religion) %>% 
+  select(site, claimpercent, id) %>% 
+  mutate(claimpercent = claimpercent * 100) %>% 
+  as_tibble()
+
+```
+
+## fig 1 - data by condition
+
+### rename each condition
+
+We had to create a new claimpercent variable so each condition had a mean value instead. As such, we had to rename each condition.
+
+```{r}
+
+data1$cond[data1$cond==4] <- 0 # Make religious prime the reference category
+data1$cond[data1$cond==1] <- 4 # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
+data1$cond[data1$cond==3] <- 1 # we're changing the number twice which screws up our dataframe
+data1$cond[data1$cond==4] <- 3
+
+```
+
+### mutating claimpercent
+
+We used mutate from the dplyr package to create "claimpercent2", which would be the average value of each condition rather than all of the values.
+
+```{r}
+
+data1 <- data1 %>% 
+  mutate(numberOf = (cond == 0) * 100 + (cond == 1 | cond == 2) * 103 + (cond == 3) * 102) %>% 
+  mutate(claimpercent2 = claimpercent / numberOf)
+
+```
+
+### calculating error bars
+
+Created group_cond so geom_error (in the next chunk) can plot the error bar. group_by() from dplyr creates a tibble so we can summarise() (also from dplyr) to make a new data frame. 
+
+Calculated the mean with "mean = mean(claimpercent)" and na.rm = TRUE skips all NA values.
+
+n = n() assigns n the number of rows in the dataframe.
+
+Like na.rm = TRUE, drop_na() from tidyverse "drops" rows that contains missing values.
+
+Then we created two new variables, lowerCI and upperCI, by calculating se and then calculating lowerCI and upperCI.
+
+Then, we ungrouped the data frame.
+
+```{r}
+
+group_cond <- data1 %>% 
+  group_by(cond) %>% 
+  summarise(mean = mean(claimpercent, na.rm = TRUE),
+            sd = sd(claimpercent, na.rm = TRUE),
+            n = n()) %>% 
+  drop_na() %>% 
+  mutate(se = sd / sqrt(n),
+         lowerCI = mean - qt(1 - (0.05/2), n - 1) * se,
+         upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
+  ungroup()
+
+```
+
+
+### plotting fig 1 - data by condition
+
+We used the ggdist package for "stat_halfeye" to create the cloud parts of the graph, and we combined it with geom_col from ggplot2 to get the bar underneath. We had to mess with the width so both could fit in the respective x axis. 
+
+In the ggdist::stat_halfeye section, adjust changed the height so we could leave room for the column. ".width" and "point_colour" were a part of the original cloud plot but we removed them since they are not in Fig 1.
+
+We used "coord_flip()" from ggplot2 to flip the graph to look like the original Figure 1. "ylab" was used to rename the y axis.
+
+Used geom_errorbar() from ggplot2 to plot the error bars, using the SE and assigning the lower and upper CI from the previous chunk. I adjusted the width to fit the columns.
+
+"Expand limits" from ggplot2 ensured that limits included x = 0 and y = 0 to better fit with the original graph.
+
+Not sure what expand for scale_y_continuous and scale_x_continuous does. Used label to name each value, and used break so labels and breaks were the same length. "name = NULL" removed the x axis label, like the original figure, and "name = "Percent Claimed"" relabeled the y axis.
+
+
+```{r}
+
+fig1_cond <- ggplot(data1, aes(x = cond)) +
+  geom_col(
+    aes(y = claimpercent2, fill = cond),
+    width = .3
+  ) +
+  ggdist::stat_halfeye(
+    aes(y = claimpercent, fill = cond),
+    adjust = .5,
+    width = .4,
+    .width = 0,
+    point_colour = NA,
+    position = position_nudge(x = 0.17, y = 0)
+  ) +
+  geom_errorbar(data = group_cond,
+                aes(ymin = lowerCI, ymax = upperCI),
+                width = .3
+  ) +
+  coord_flip() +
+  expand_limits(x = 0, y = 0) +
+  scale_x_continuous(name = NULL,
+                     expand = c(0,0), 
+                     breaks = c(0, 1, 2, 3),
+                     labels = c("Control","Noise","Secular","Religious")) +
+  scale_y_continuous(name = "Percent Claimed",
+                     expand = c(0,0)) +
+  scale_fill_viridis_c(
+    alpha = .5,
+    name = NULL)
+
+```
+
+## fig 1 - data by site
+
+### renaming sites
+
+```{r}
+data1$site[data1$site==1] <- 0 
+data1$site[data1$site==2] <- 1 
+data1$site[data1$site==3] <- 2 
+```
+
+
+### mutating claimpercent
+
+```{r}
+data1 <- data1 %>% 
+  mutate(numberOf2 = (site == 0) * 123 + (site == 1) * 127 + (cond == 2) * 156) %>% 
+  mutate(claimpercent3 = claimpercent / numberOf2)
+```
+
+
+### plotting fig 1 - data by site
+
+```{r}
+fig1_site <- ggplot(data1, aes(x = site)) +
+  geom_col(
+    aes(y = claimpercent3),
+    width = .3
+  ) +
+  ggdist::stat_halfeye(
+    aes(y = claimpercent),
+    adjust = .5,
+    width = .3,
+    .width = 0,
+    point_colour = NA,
+    position = position_nudge(x = 0.2, y = 0)
+  ) +
+  coord_flip() +
+  expand_limits(x = 0, y = 0) +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0))
+```
+
+
+check code for sd and se
+upper = mean + se, lower = mean - se
+try functions if you want?
+
+suggestions from jenny s:
+For the condition names, make sure the variable is a factor and try setting the "labels" of data1$cond before plotting. One option would be to check out  ?factor for more info.
+
+I've personally never used stat_halfeye but great job discovering this function. There's an argument "position" and a function position_nudge() that you should be able to add to geom_col() and possibly also to stat_halfeye() to reposition when the columns are
+
+hmm that's odd about ggplot not loading properly - perhaps try installing tidyverse again?

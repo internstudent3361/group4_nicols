@@ -1,0 +1,262 @@
+---
+title: "figure1_angelina"
+author: "Angelina Lim"
+date: "17/07/2021"
+output: html_document
+---
+
+
+### loading libraries
+```{r eval=TRUE}
+
+library(tidyverse)
+library(janitor) #used to read csv
+library(ggplot2) #used to plot column
+library(ggdist) #used for raincloud plot
+library(gridExtra) #combines both plots
+
+```
+
+## reading nichols csv
+
+```{r eval=TRUE}
+
+data1 <- read_csv("~/RFiles/nichols/group4_nicols/data/Nichols_et_al_data.csv")
+
+```
+
+## cleaning up variables 
+
+We used the dplyr package to make the data much neater. Rename was used to clean up the variables to look more like the original. We also used filter and select to narrow down the variables we will be using for Fig 1. 
+
+Claimpercent had to be mutated to become a percentage value, since they were in decimal place beforehand. Then, we used as_tibble to make the data easier to look at.
+
+Originally had cond in select, but was told you cannot select a factor. Cond also changed to factor variable.
+
+```{r eval=TRUE}
+data1 <- data1 %>%  
+  filter(include == 0) %>% 
+  rename(cond = con,
+         claimpercent = claim,
+         claimmoney = moneyclaim,
+         CT_practice = `completion time (practice included)`,
+         CT_payments = `completion time (payments only)`,
+         religiosity = relig,
+         religion = Religion) %>% 
+  select(site, claimpercent, id, cond) %>% 
+  mutate(claimpercent = claimpercent * 100) %>% 
+  as_tibble()
+
+```
+
+### rename each condition for "data by condition" and "data by site"
+
+We had to create a new claimpercent variable so each condition had a mean value instead. As such, we had to rename each condition.
+
+```{r eval=TRUE}
+
+# data by condition
+
+data1$cond[data1$cond==4] <- 0 # Make religious prime the reference category
+data1$cond[data1$cond==1] <- 4 # This is in a weird order as R reads the code line by line, so if we go from top to bottom, 
+data1$cond[data1$cond==3] <- 1 # we're changing the number twice which screws up our dataframe
+data1$cond[data1$cond==4] <- 3
+
+# data by site
+
+data1$site[data1$site==1] <- 0 
+data1$site[data1$site==3] <- 1 
+# makes USA = 0, Japan = 1, Czech Republic = 2
+
+```
+
+### mutating claimpercent
+
+We used mutate from the dplyr package to create "claimpercent2", which would be the average value of each condition rather than all of the values.
+
+```{r eval=TRUE}
+
+# data by condition
+
+data1 <- data1 %>% 
+  mutate(numberOf = (cond == 0) * 100 + (cond == 1 | cond == 2) * 103 + (cond == 3) * 102) %>% 
+  mutate(claimpercent2 = claimpercent / numberOf)
+
+# data by site
+
+data1 <- data1 %>% 
+  mutate(numberOf2 = (site == 0) * 123 + (site == 2) * 127 + (site == 1) * 156) %>% 
+  mutate(claimpercent3 = claimpercent / numberOf2)
+
+```
+
+### calculating error bars
+
+Created group_cond so geom_error (in the next chunk) can plot the error bar. group_by() from dplyr creates a tibble so we can summarise() (also from dplyr) to make a new data frame. 
+
+Calculated the mean with "mean = mean(claimpercent)" and na.rm = TRUE skips all NA values.
+
+n = n() assigns n the number of rows in the dataframe.
+
+Like na.rm = TRUE, drop_na() from tidyverse "drops" rows that contains missing values.
+
+Then we created two new variables, lowerCI and upperCI, by calculating se and then calculating lowerCI and upperCI.
+
+Then, we ungrouped the data frame.
+
+We had to change group_cond and group_site into a factor so it would align with our plot later. Without this, the error bars would not align with the cond and site bars since they will also be turned into factors.
+
+```{r eval=TRUE}
+
+# data by condition
+
+group_cond <- data1 %>% 
+  group_by(cond) %>% 
+  summarise(mean = mean(claimpercent, na.rm = TRUE),
+            sd = sd(claimpercent, na.rm = TRUE),
+            n = n()) %>% 
+  drop_na() %>% 
+  mutate(se = sd / sqrt(n),
+         lowerCI = mean - qt(1 - (0.05/2), n - 1) * se,
+         upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
+  ungroup()
+
+group_cond$cond <- factor(group_cond$cond)
+
+# data by site
+
+group_site <- data1 %>% 
+  group_by(site) %>% 
+  summarise(mean = mean(claimpercent, na.rm = TRUE),
+            sd = sd(claimpercent, na.rm = TRUE),
+            n = n()) %>% 
+  drop_na() %>% 
+  mutate(se = sd / sqrt(n),
+         lowerCI = mean - qt(1 - (0.05/2), n - 1) * se,
+         upperCI = mean + qt(1 - (0.05/2), n - 1) * se) %>% 
+  ungroup()
+
+group_site$site <- factor(group_site$site)
+
+```
+
+
+### plotting fig 1 - data by condition and data by site
+
+First of all, we changed both cond and site to a factor. We changed it at this point in time because if we changed it earlier, we could not do the calculations needed. 
+
+We used the ggdist package for "stat_halfeye" to create the cloud parts of the graph, and we combined it with geom_col from ggplot2 to get the bar underneath. We had to mess with the width so both could fit in the respective x axis. 
+
+In the ggdist::stat_halfeye section, adjust changed the height so we could leave room for the column. ".width" and "point_colour" were a part of the original cloud plot but we removed them since they are not in Fig 1.
+
+We used "coord_flip()" from ggplot2 to flip the graph to look like the original Figure 1. "ylab" was used to rename the y axis.
+
+Used geom_errorbar() from ggplot2 to plot the error bars, using the SE and assigning the lower and upper CI from the previous chunk. I adjusted the width to fit the columns.
+
+"Expand limits" from ggplot2 ensured that limits included x = 0 and y = 0 to better fit with the original graph.
+
+For "scale_x_discrete" and "scale_y_continuous", expand made sure the x and y axis so it included zero. Used label to name each value, and used break so labels and breaks were the same length. "name = NULL" removed the x axis label, like the original figure, and "name = "Percent Claimed"" relabeled the y axis.
+
+theme_classic created a white background for the graph (instead of grids).
+
+Both from ggplot 2, "theme(legend.position = "none")" removed the legend from "scale_fill_manual". "scale_fill_manual" allowed us to add the exact colours used in the original plot, and the colours were obtained by using a colour picking site and taking the original colours.
+
+ggtitle() from ggplot2 was used to create the "A." title in the corner of the graph, and facet_grid() allowed us to put the title "Data by _____" in its own box, like in the original.
+
+
+```{r eval=TRUE}
+# data by condition
+
+data1$cond <- factor(data1$cond)
+
+fig1_cond <- ggplot(data1, aes(x = cond)) +
+  geom_col(
+    aes(y = claimpercent2, fill = cond),
+    width = .3
+  ) +
+  ggdist::stat_halfeye(
+    aes(y = claimpercent, fill = cond),
+    adjust = .5,
+    width = .4,
+    .width = 0,
+    point_colour = NA,
+    position = position_nudge(x = 0.17, y = 0)
+  ) +
+  geom_errorbar(data = group_cond,
+                aes(ymin = lowerCI, ymax = upperCI),
+                show.legend = NA,
+                width = .3
+                ) +
+  coord_flip() +
+  expand_limits(x = 0, y = 0) +
+  scale_x_discrete(name = NULL,
+                     expand = c(0,0),
+                     breaks = c(0, 1, 2, 3),
+                     labels = c("Control", "Noise", "Secular", "Religious")
+  ) +
+  scale_y_continuous(name = "Percent Claimed",
+                     expand = c(0,0),
+                     breaks = c(0, 20, 40, 60, 80, 100)
+                     ) +
+  ggtitle(
+    label = "Data by condition"
+  ) +
+  theme_classic() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("#adadad","#336ca3","#77c2ec","#ecb234")) +
+  ggtitle(label = "A.") +
+  facet_grid(. ~ "Data by condition")
+
+plot(fig1_cond)
+
+```
+
+```{r eval=TRUE}
+# data by site
+
+data1$site <- factor(data1$site)
+
+fig1_site <- ggplot(data1, aes(x = site)) +
+  geom_col(
+    aes(y = claimpercent3, fill = site),
+    width = .3
+  ) +
+  ggdist::stat_halfeye(
+    aes(y = claimpercent, fill = site),
+    adjust = .5,
+    width = .3,
+    .width = 0,
+    point_colour = NA,
+    position = position_nudge(x = 0.2, y = 0)
+  ) +
+  geom_errorbar(data = group_site,
+                aes(ymin = lowerCI, ymax = upperCI),
+                width = .3
+  ) +
+  coord_flip() +
+  expand_limits(x = 0, y = 0) +
+  scale_x_discrete(name = NULL,
+                     expand = c(0,0), 
+                     breaks = c(0, 1, 2),
+                     labels = c("USA","Japan","Czech Rep.")
+                     ) +
+  scale_y_continuous(name = "Percent Claimed",
+                     expand = c(0,0),
+                     breaks = c(0, 20, 40, 60, 80, 100)
+                     ) +
+  theme_classic() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("#fec8bc","#f2667c","#d75b5c")) +
+  ggtitle(label = "B.") +
+  facet_grid(. ~ "Data by site") 
+
+plot(fig1_site)
+
+```
+
+### combining fig1_cond and fig1_site
+```{r eval=TRUE}
+
+grid.arrange(fig1_cond, fig1_site, ncol = 2)
+
+```
