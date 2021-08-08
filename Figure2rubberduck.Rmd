@@ -92,7 +92,28 @@ groupA$affil <- factor(groupA$affil, levels = c(0, 1),
                        labels = c("Non-affiliated", "Affiliated"))
 ```
 
-Figuring out how to code the plots took a bit of time. The first thing to figure out was how to get 4 lines to appear, as attempts to use geom_smooth() failed at first. We figured out that we needed to turn the cond variable into a factor variable, rather than a numeric variable. This enabled 4 lines to appear. After that, the next thing to figure out was how to get the y limits to reach 50. When we tried using the ylim() function, the lines changed completely. After reviewing the documentation, we figured out that ylim() and other similar functions simply zoomed in or out of the graph, which caused data points to disappear when using geom_smooth. We found a function, coord_cartesian() that allowed us to set limits without losing any data points. We then used functions such as labs(), theme_light(), theme(), and scale_color_manual to change the graph to look similar to the paper. The last thing to figure out was how to put the title into a grey box. This grey box typically only appears in graphs that have used the facet function which is typically used with multiple graphs, so we just used the facet_grid() function on one table at a time in order to get the grey box to appear. 
+Figuring out how to code the plots took a bit of time. The first thing to figure out was how to get 4 lines to appear, as attempts to use geom_smooth() failed at first. We figured out that we needed to turn the cond variable into a factor variable, rather than a numeric variable. This enabled 4 lines to appear. 
+
+```{r}
+figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
+  geom_smooth(method = "lm")
+
+figA
+```
+
+
+After that, the next thing to figure out was how to get the y limits to reach 50. 
+
+```{r}
+figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
+  geom_smooth(method = "lm") +
+  ylim(c(0, 50))
+
+figA
+```
+
+
+When we tried using the ylim() function, the lines changed completely. After reviewing the documentation, we figured out that ylim() and other similar functions simply zoomed in or out of the graph, which caused data points to disappear when using geom_smooth. We found a function, coord_cartesian() that allowed us to set limits without losing any data points. We then used functions such as labs(), theme_light(), theme(), and scale_color_manual to change the graph to look similar to the paper. The last thing to figure out was how to put the title into a grey box. This grey box typically only appears in graphs that have used the facet function which is typically used with multiple graphs, so we just used the facet_grid() function on one table at a time in order to get the grey box to appear. 
 
 ```{r}
 
@@ -106,6 +127,7 @@ figA <- ggplot(dataA, aes(religiosity, claimpercent, color = cond)) +
   facet_grid(. ~ "Condition*Religiosity") + # title, we use facet_grid to put it in a grey box
   scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4")) #change the colours of the lines to fit source
 
+figA
 ```
 
 The second plot was mostly identical to the first plot. Note that with the first two plots we used 2 geom_smooth() as one of the geom_smooth() was simply to plot the SE line (using se = TRUE) for the religious condition.
@@ -117,10 +139,12 @@ figB <- ggplot(dataA, aes(ritual, claimpercent, color = cond)) +
   theme_light() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none") +
   coord_cartesian(ylim = c(0, 50)) +
-  labs(x = "Ritual frequency", y = "Percentage claimed") ++
+  labs(x = "Ritual frequency", y = "Percentage claimed") +
   facet_grid(. ~ "Condition*Ritual frequency") +
   scale_x_continuous(breaks = seq(0, 6, 1)) +  #adjusting the tick marks so 7 marks appear
   scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
+
+figB
 ```
 
 The third plot took the most time to figure out. This was in part due to needing to plot the CI limits, which was explained above. The next biggest issue was figuring out how to use geom_line(). Our initial attempts to use geom_line() failed to produce any lines. After scouring the geom_line() documentation, we realized that we needed to use the group argument in order to tell geom_line() what it was plotting. This took a while to figure out as the documentation used the argument (group = group) in their example which did not make much sense at first, as they were grouping the variable "group". The next thing to figure out was how to get the geoms to not overlap over each other. After some research, we found the function position_dodge, which moved each line by a set distance in order to stop them from overlapping. 
@@ -136,11 +160,13 @@ figC <- ggplot(groupA, aes(affil, mean, color = cond)) +
   labs(x = "Religious affiliation", y = "Percentage claimed") +
   facet_grid(. ~ "Condition*Religious affiliation") +
   scale_color_manual(values = c("#dea520", "#5ab3e4", "#094689", "#a4a4a4"))
+
+figC
 ```
 
 The first part of the figure that we knew would be a bit difficult was how to display 3 graphs at once. This was due to the fact that facet would not work for us as we were using different variables in each plot. After some research, we came across the gridExtra package which came with the function grid.arrange() which allowed us to plot 3 graphs side by side.
 
-```{r}
+```{r, fig.width = 12, fig.height = 4}
 grid.arrange(figA, figB, figC, ncol = 3)
 ```
 
